@@ -46,6 +46,17 @@ class LoaderSpec extends UnitTestSpec {
     users should have size 4
   }
 
+  "loadUsers" should "load user with minimal set of properties from sample data" in {
+      val inputPath = Paths.get(ClassLoader.getSystemResource("users/minimalPropertiesFromSampleData.json").toURI)
+
+      val users = Loader.loadUsers( inputPath )
+
+      users should have size 1
+      users(0) should have(
+        Symbol("_id")(44)
+      )
+    }
+
   "loadTickets" should "load single ticket from file" in {
      val inputPath = Paths.get(ClassLoader.getSystemResource("tickets/single.json").toURI)
 
@@ -63,5 +74,17 @@ class LoaderSpec extends UnitTestSpec {
      val tickets = Loader.loadTickets( inputPath )
 
      tickets should have size 14
+   }
+
+
+  "loadTickets" should "load ticket with minimal set of properties from sample data" in {
+     val inputPath = Paths.get(ClassLoader.getSystemResource("tickets/minimalPropertiesFromSampleData.json").toURI)
+
+     val tickets = Loader.loadTickets( inputPath )
+
+    tickets should have size 1
+    tickets(0) should have(
+       Symbol("_id")("436bf9b0-1147-4c0a-8439-6f79833bff5b")
+     )
    }
 }

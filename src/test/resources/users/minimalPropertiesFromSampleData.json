@@ -1,0 +1,18 @@
+[
+  {
+     "_id": 44,
+     "url": "http://initech.zendesk.com/api/v2/users/44.json",
+     "external_id": "b5d38224-29c5-4aea-81a4-0da83d0a3f80",
+     "name": "John Floyd",
+     "created_at": "2016-06-08T10:26:06 -10:00",
+     "active": false,
+     "shared": false,
+     "last_login_at": "2014-11-04T08:34:49 -11:00",
+     "phone": "9894-382-253",
+     "signature": "Don't Worry Be Happy!",
+     "tags": [
+     ],
+     "suspended": false,
+     "role": "end-user"
+   }
+]

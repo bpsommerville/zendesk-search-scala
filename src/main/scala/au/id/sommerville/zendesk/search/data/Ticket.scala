@@ -2,25 +2,22 @@ package au.id.sommerville.zendesk.search.data
 
 import java.time.OffsetDateTime
 
-/**
- *
- */
 case class Ticket(
   _id: String,
   url: String,
   externalId: String,
   createdAt: OffsetDateTime,
-  `type`: String,
+  `type`: Option[String] = None,
   subject: String,
-  description: String,
+  description: Option[String] = None,
   priority: String,
   status: String,
   submitterId: Int,
-  assigneeId: Int,
-  organizationId: Int,
+  assigneeId: Option[Int] = None,
+  organizationId: Option[Int] = None,
   tags: Set[String],
   hasIncidents: Boolean,
-  dueAt: OffsetDateTime,
+  dueAt: Option[OffsetDateTime] = None,
   via: String
 )
 

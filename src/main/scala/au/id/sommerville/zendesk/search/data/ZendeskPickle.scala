@@ -26,6 +26,18 @@ object ZendeskPickle extends upickle.AttributeTagged {
   override def objectTypeKeyWriteMap(s: CharSequence) =
     camelToSnake(s.toString)
 
+  override implicit def OptionWriter[T: Writer]: Writer[Option[T]] =
+    implicitly[Writer[T]].comap[Option[T]] {
+      case None => null.asInstanceOf[T]
+      case Some(x) => x
+    }
+
+  override implicit def OptionReader[T: Reader]: Reader[Option[T]] =
+    implicitly[Reader[T]].mapNulls {
+      case null => None
+      case x => Some(x)
+    }
+
   private val dateTimeFormatter = new DateTimeFormatterBuilder()
     .parseCaseInsensitive()
     .append(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
