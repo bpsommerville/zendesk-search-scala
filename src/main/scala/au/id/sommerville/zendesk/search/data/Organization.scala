@@ -1,7 +1,7 @@
 package au.id.sommerville.zendesk.search.data
 import java.time.OffsetDateTime
 
-case class Organization(
+case class Organization (
   _id: Int,
   url: String,  // Could be converted to URL type
   externalId: String,
@@ -11,7 +11,7 @@ case class Organization(
   details: String,
   sharedTickets: Boolean,
   tags: Set[String]
-)
+) extends Searchable
 
 object Organization {
   implicit val rw: ZendeskPickle.ReadWriter[Organization] = ZendeskPickle.macroRW
