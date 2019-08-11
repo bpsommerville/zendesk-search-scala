@@ -31,6 +31,13 @@ class ConsoleCommandResponseSpec extends UnitTestSpec with TableDrivenPropertyCh
     ("search u _id 1234", Command.Search(Entity.Users, "_id", "1234")),
     ("search ticket _id 1234", Command.Search(Entity.Tickets, "_id", "1234")),
     ("search t _id 1234", Command.Search(Entity.Tickets, "_id", "1234")),
+    ("fields organization", Command.ListFields(Entity.Organizations)),
+    ("f org", Command.ListFields(Entity.Organizations)),
+    ("f o", Command.ListFields(Entity.Organizations)),
+    ("f user", Command.ListFields(Entity.Users)),
+    ("f u", Command.ListFields(Entity.Users)),
+    ("f ticket", Command.ListFields(Entity.Tickets)),
+    ("f t", Command.ListFields(Entity.Tickets)),
   )
   "readCommand" should "read a line and convert it to the appropriate command" in {
     val mockConsoleIO = stub[ConsoleIO]

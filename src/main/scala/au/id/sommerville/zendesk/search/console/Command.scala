@@ -32,21 +32,21 @@ object Command {
 
   case object Unknown extends Command
 
-  case class Search(
-    entity: Entity,
-    field: String,
-    value: String
-  ) extends Command
+  case class Search(entity: Entity, field: String, value: String) extends Command
 
   case class ListFields(entity: Entity) extends Command
 
-  def parse(line: String):Command = {
+  def parse(line: String): Command = {
     line.split("\\s+").toList match {
       case ("h" | "help") :: Nil => Help
       case ("q" | "quit") :: Nil => Quit
-      case ("s" |"search" ) :: e :: f :: v =>
+      case ("s" | "search") :: e :: f :: v =>
         Entity.parse(e).map(
-          e => Search( e,f, v.mkString(" "))
+          e => Search(e, f, v.mkString(" "))
+        ).getOrElse(Unknown)
+      case ("f" | "fields") :: e :: Nil =>
+        Entity.parse(e).map(
+          e => ListFields(e)
         ).getOrElse(Unknown)
       case _ => Unknown
     }

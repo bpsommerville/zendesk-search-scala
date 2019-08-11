@@ -1,8 +1,8 @@
 package au.id.sommerville.zendesk.search.console
 
-import au.id.sommerville.zendesk.search.console.Command.{Help, Quit, Search}
+import au.id.sommerville.zendesk.search.console.Command.{Help, ListFields, Quit, Search}
 import au.id.sommerville.zendesk.search.console.Entity.Organizations
-import au.id.sommerville.zendesk.search.console.Response.SearchResponse
+import au.id.sommerville.zendesk.search.console.Response.{EntityFields, NotFoundSearchResponse, SearchResponse, SuccessfulSearchResponse}
 import au.id.sommerville.zendesk.search.data.{Organization, Searchable}
 import au.id.sommerville.zendesk.search.repo.SearchRepository
 
@@ -64,6 +64,7 @@ class SearchConsole(
   orgs: SearchRepository[Organization]
 ) {
 
+
   def commandLoop = {
     io.printResponse(Response.Welcome)
 
@@ -75,6 +76,7 @@ class SearchConsole(
           cmd match {
             case Help => io.printResponse(Response.Help)
             case Search(e, f, v) => io.printResponse(search(e, f, v))
+            case ListFields(e) => io.printResponse(fields(e))
           }
           loop()
       }
@@ -84,11 +86,19 @@ class SearchConsole(
   }
 
   def search(entity: Entity, field: String, value: String): SearchResponse = {
-    SearchResponse(
-      entity match {
-        case Organizations => orgs.search(field, value)
-      }
+    (entity match {
+      case Organizations => orgs.search(field, value)
+    }) map {
+      SuccessfulSearchResponse(_)
+    } getOrElse(
+      NotFoundSearchResponse(entity, field, value)
     )
+  }
+
+  def fields(entity: Entity): Response = {
+    entity match {
+      case Organizations => EntityFields(entity, Organization.fields)
+    }
   }
 
 }

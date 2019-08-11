@@ -15,4 +15,16 @@ case class Organization (
 
 object Organization {
   implicit val rw: ZendeskPickle.ReadWriter[Organization] = ZendeskPickle.macroRW
+
+  val fields: Seq[SearchableField] = Seq(
+    SearchableField("_id", FieldType.Int),
+    SearchableField("url", FieldType.String),
+    SearchableField("externalId", FieldType.String),
+    SearchableField("name", FieldType.String),
+    SearchableField("domainNames", FieldType.String, collection = true),
+    SearchableField("details", FieldType.String),
+    SearchableField("createdAt", FieldType.DateTime),
+    SearchableField("sharedTickets", FieldType.String),
+    SearchableField("tags", FieldType.String, collection = true)
+  )
 }

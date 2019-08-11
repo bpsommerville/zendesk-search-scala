@@ -43,7 +43,15 @@ class MemoryRepositorySpec extends UnitTestSpec {
     repo.add( generateOrgs(20))
 
     val results = repo.search("_id", "4")
-    results should have length(1)
-    results(0)._id should equal(4)
+    results.value should have length(1)
+    results.value(0)._id should equal(4)
+  }
+
+  "search by id" should "return Noes if nothing matches" in {
+    val repo = new MemoryRepository[Organization]
+    repo.add( generateOrgs(20))
+
+    val results = repo.search("_id", "412431")
+    results should equal(None)
   }
 }

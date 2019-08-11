@@ -1,6 +1,6 @@
 package au.id.sommerville.zendesk.search.console
 
-import au.id.sommerville.zendesk.search.data.{Organization, Searchable, ZendeskPickle}
+import au.id.sommerville.zendesk.search.data.{Organization, Searchable, SearchableField, ZendeskPickle}
 
 trait Response {
   def out: Seq[String]
@@ -24,7 +24,9 @@ object Response {
     "* quit (q)"
   )
 
-  case class SearchResponse(entities: Seq[Searchable]) extends Response {
+  trait SearchResponse extends Response
+
+  case class SuccessfulSearchResponse(entities: Seq[Searchable]) extends SearchResponse {
     import au.id.sommerville.zendesk.search.data.ZendeskPickle._
 
     override def out: Seq[String] = {
@@ -39,4 +41,15 @@ object Response {
       entities.flatMap( writeEntity(_))
     }
   }
+
+  case class NotFoundSearchResponse(entity: Entity, field: String, value: String) extends SearchResponse{
+    override def out: Seq[String] = Seq(s"No results found for ${entity} with ${field} = ${value}")
+  }
+
+  case class EntityFields(entity: Entity, fields: Seq[SearchableField]) extends Response {
+    override def out: Seq[String] = {
+      Seq(s"Search ${entity} with:") ++ fields.map( f =>s"  ${f.name}")
+    }
+  }
+
 }
