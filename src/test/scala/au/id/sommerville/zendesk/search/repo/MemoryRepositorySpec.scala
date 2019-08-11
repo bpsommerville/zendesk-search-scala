@@ -36,7 +36,14 @@ class MemoryRepositorySpec extends UnitTestSpec {
         Symbol("_id")(id)
       )
     })
-
   }
 
+  "search by id" should "retrieve org with matching id" in {
+    val repo = new MemoryRepository[Organization]
+    repo.add( generateOrgs(20))
+
+    val results = repo.search("_id", "4")
+    results should have length(1)
+    results(0)._id should equal(4)
+  }
 }

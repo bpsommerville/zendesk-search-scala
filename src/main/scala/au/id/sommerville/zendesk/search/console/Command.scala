@@ -12,6 +12,15 @@ object Entity {
 
   case object Users extends Entity
 
+  def parse(s: String): Option[Entity] = {
+    s match {
+      case "o" | "org" | "organization" => Some(Organizations)
+      case "t" | "ticket" => Some(Tickets)
+      case "u" | "user" => Some(Users)
+      case _ => None
+    }
+  }
+
 }
 
 
@@ -31,10 +40,14 @@ object Command {
 
   case class ListFields(entity: Entity) extends Command
 
-  def apply(line: String): Command = {
-    line match {
-      case "h" | "help" => Help
-      case "q" | "quit" => Quit
+  def parse(line: String):Command = {
+    line.split("\\s+").toList match {
+      case ("h" | "help") :: Nil => Help
+      case ("q" | "quit") :: Nil => Quit
+      case ("s" |"search" ) :: e :: f :: v =>
+        Entity.parse(e).map(
+          e => Search( e,f, v.mkString(" "))
+        ).getOrElse(Unknown)
       case _ => Unknown
     }
   }

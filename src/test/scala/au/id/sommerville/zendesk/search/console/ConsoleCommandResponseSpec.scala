@@ -1,33 +1,21 @@
 package au.id.sommerville.zendesk.search.console
 
 import au.id.sommerville.zendesk.search.UnitTestSpec
-import au.id.sommerville.zendesk.search.console.{Command, ConsoleCommandResponse, ConsoleIO, Response}
 import org.scalatest.prop.TableDrivenPropertyChecks
 
-import scala.collection.mutable
 
 class ConsoleCommandResponseSpec extends UnitTestSpec with TableDrivenPropertyChecks {
 
-  class TestConsole extends ConsoleIO {
-    val input = mutable.Queue.empty[String]
-    val output = mutable.Queue.empty[String]
-
-    override def printLn(line: String): Unit = output += line
-
-    override def readLine: String = input.dequeue()
-  }
-
   "printResponse" should "print the lines from the response to the console" in {
-    val testConsole = new TestConsole
-    val ccr = ConsoleCommandResponse(testConsole)
+    val mockConsoleIO = mock[ConsoleIO]
+
+    val ccr = ConsoleCommandResponse(mockConsoleIO)
+
+    (mockConsoleIO.printLines _).expects(Seq("one", "two", "three"));
 
     ccr.printResponse(new Response {
       def out = Seq("one", "two", "three")
     })
-
-    testConsole.output should contain theSameElementsInOrderAs (
-      Seq("one", "two", "three")
-      )
   }
 
   val commands = Table(
@@ -36,33 +24,42 @@ class ConsoleCommandResponseSpec extends UnitTestSpec with TableDrivenPropertyCh
     ("help", Command.Help),
     ("q", Command.Quit),
     ("quit", Command.Quit),
+    ("search organization _id 1234", Command.Search(Entity.Organizations, "_id", "1234")),
+    ("s o _id 1234", Command.Search(Entity.Organizations, "_id", "1234")),
+    ("s org aa one two three", Command.Search(Entity.Organizations, "aa", "one two three")),
+    ("search user _id 1234", Command.Search(Entity.Users, "_id", "1234")),
+    ("search u _id 1234", Command.Search(Entity.Users, "_id", "1234")),
+    ("search ticket _id 1234", Command.Search(Entity.Tickets, "_id", "1234")),
+    ("search t _id 1234", Command.Search(Entity.Tickets, "_id", "1234")),
   )
   "readCommand" should "read a line and convert it to the appropriate command" in {
-    val testConsole = new TestConsole
-    val ccr = ConsoleCommandResponse(testConsole)
+    val mockConsoleIO = stub[ConsoleIO]
+    val ccr = ConsoleCommandResponse(mockConsoleIO)
 
     forAll(commands) {
       (line: String, cmd: Command) => {
-        testConsole.input += line
+        (mockConsoleIO.readLine _).when().once().returns(line)
         ccr.readCommand should equal(cmd)
       }
     }
   }
 
   val unknown = Table(
-      ("line"),
-      ("he"),
-      ("1231p"),
-      ("sddd"),
-      (""),
-    )
+    ("line"),
+    ("he"),
+    ("1231p"),
+    ("sddd"),
+    ("s foo _id 1234"),
+    (""),
+  )
   "readCommand" should "return Unknown if line doesn't match any commands" in {
-    val testConsole = new TestConsole
-    val ccr = ConsoleCommandResponse(testConsole)
+    val mockConsoleIO = stub[ConsoleIO]
+    val ccr = ConsoleCommandResponse(mockConsoleIO)
 
     forAll(unknown) {
       (line: String) => {
-        testConsole.input += line
+
+        (mockConsoleIO.readLine _).when().once().returns(line)
         ccr.readCommand should equal(Command.Unknown)
       }
     }

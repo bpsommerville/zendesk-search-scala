@@ -16,4 +16,9 @@ class MemoryRepository[T<: Searchable] extends SearchRepository[T] {
     data = values.map(o => o._id -> Seq(o)).toMap
   }
 
+  override def search(field: String, value: String): Seq[T] = {
+    field match {
+      case "_id" => find( value.toInt)
+    }
+  }
 }

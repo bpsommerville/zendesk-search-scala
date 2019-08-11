@@ -1,6 +1,10 @@
 package au.id.sommerville.zendesk.search.console
 
-import au.id.sommerville.zendesk.search.console.Command.{Help, Quit}
+import au.id.sommerville.zendesk.search.console.Command.{Help, Quit, Search}
+import au.id.sommerville.zendesk.search.console.Entity.Organizations
+import au.id.sommerville.zendesk.search.console.Response.SearchResponse
+import au.id.sommerville.zendesk.search.data.{Organization, Searchable}
+import au.id.sommerville.zendesk.search.repo.SearchRepository
 
 import scala.annotation.tailrec
 import scala.io.StdIn
@@ -42,7 +46,7 @@ object ConsoleCommandResponse {
   ) extends ConsoleCommandResponse {
     override def printResponse(response: Response): Unit = io.printLines(response.out)
 
-    override def readCommand: Command = Command(io.readLine)
+    override def readCommand: Command = Command.parse(io.readLine)
   }
 
 
@@ -53,8 +57,11 @@ object ConsoleCommandResponse {
   val live = ConsoleCommandResponse(ConsoleIO.live)
 }
 
+trait SearchRepos
+
 class SearchConsole(
-  io: ConsoleCommandResponse
+  io: ConsoleCommandResponse,
+  orgs: SearchRepository[Organization]
 ) {
 
   def commandLoop = {
@@ -67,6 +74,7 @@ class SearchConsole(
         case cmd =>
           cmd match {
             case Help => io.printResponse(Response.Help)
+            case Search(e, f, v) => io.printResponse(search(e, f, v))
           }
           loop()
       }
@@ -75,12 +83,19 @@ class SearchConsole(
     loop()
   }
 
+  def search(entity: Entity, field: String, value: String): SearchResponse = {
+    SearchResponse(
+      entity match {
+        case Organizations => orgs.search(field, value)
+      }
+    )
+  }
+
 }
 
 object SearchConsole {
-  def apply(io: ConsoleCommandResponse): SearchConsole = {
-    new SearchConsole(io)
+  def apply(io: ConsoleCommandResponse, orgs: SearchRepository[Organization]): SearchConsole = {
+    new SearchConsole(io, orgs)
   }
 
-  val live = SearchConsole(ConsoleCommandResponse.live)
 }
