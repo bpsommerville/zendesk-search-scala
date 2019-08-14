@@ -1,8 +1,11 @@
 package au.id.sommerville.zendesk.search.console
 
+import au.id.sommerville.zendesk.search.data.{Organization, Ticket}
+
 trait Command
 
-trait Entity
+trait Entity {
+}
 
 object Entity {
 

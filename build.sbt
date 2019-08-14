@@ -11,7 +11,8 @@ libraryDependencies ++= Seq(
   "com.github.scopt" %% "scopt" % "3.7.1",
   "com.lihaoyi" %% "upickle" % "0.7.5",
   "org.scalatest" %% "scalatest" % "3.0.8" % "it,test",
-  "org.scalamock" %% "scalamock" % "4.3.0" % "it,test"
+  "org.scalamock" %% "scalamock" % "4.3.0" % "it,test",
+  "com.github.pjfanning" %% "scala-faker" % "0.5.0" % "it,test"
 )
 
 lazy val root = (project in file("."))

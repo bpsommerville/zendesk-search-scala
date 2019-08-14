@@ -1,6 +1,7 @@
 package au.id.sommerville.zendesk.search.console
 
-import au.id.sommerville.zendesk.search.data.{Organization, Searchable, SearchableField, ZendeskPickle}
+import au.id.sommerville.zendesk.search.data.Organization.fields
+import au.id.sommerville.zendesk.search.data.{Organization, Searchable, SearchableField, SearchableFields, ZendeskPickle}
 
 trait Response {
   def out: Seq[String]
@@ -46,7 +47,7 @@ object Response {
     override def out: Seq[String] = Seq(s"No results found for ${entity} with ${field} = ${value}")
   }
 
-  case class EntityFields(entity: Entity, fields: Seq[SearchableField]) extends Response {
+  case class EntityFields[T <: Searchable](entity: Entity)(implicit fields: SearchableFields[T] ) extends Response {
     override def out: Seq[String] = {
       Seq(s"Search ${entity} with:") ++ fields.map( f =>s"  ${f.name}")
     }

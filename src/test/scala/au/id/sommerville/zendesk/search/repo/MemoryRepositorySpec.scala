@@ -1,9 +1,12 @@
 package au.id.sommerville.zendesk.search.repo
 
-import java.time.OffsetDateTime
+import java.time.{OffsetDateTime, ZoneOffset}
 
 import au.id.sommerville.zendesk.search.UnitTestSpec
 import au.id.sommerville.zendesk.search.data.Organization
+import faker._
+
+import scala.util.Random
 
 
 /**
@@ -11,18 +14,35 @@ import au.id.sommerville.zendesk.search.data.Organization
  */
 class MemoryRepositorySpec extends UnitTestSpec {
 
+  def genSeq( max: Int, gen: () => String ) = {
+    for (i <- 0 to Random.nextInt(max)) yield gen()
+  }
+
+  def randIntBetween(low: Int, high: Int) : Int = {
+    Random.nextInt(high - low + 1) + low
+  }
+
   def generateOrgs(count: Int) = {
     (1 to count).map( id =>
       Organization(
         _id = id,
-        url = "",
-        externalId = "",
-        name = "",
-        domainNames = Seq(""),
-        createdAt = OffsetDateTime.now(),
-        details = "",
-        sharedTickets = false,
-        tags = Set()
+        url = s"http://initech.zendesk.com/api/v2/organizations/id.json",
+        externalId = java.util.UUID.randomUUID.toString,
+        name = Name.name,
+        domainNames = genSeq(4, () => Internet.domain_name),
+        createdAt = OffsetDateTime.of(
+          randIntBetween(1983, 2019),
+          randIntBetween(1, 12),
+          randIntBetween(1, 28),
+          randIntBetween(0, 23),
+          randIntBetween(0, 59),
+          randIntBetween(0, 59),
+          0,
+          ZoneOffset.ofHours(randIntBetween(-11, 11))
+        ),
+        details = Lorem.paragraph(),
+        sharedTickets = Random.nextBoolean(),
+        tags = Lorem.words(Random.nextInt(4)).toSet
       )
     )
   }
@@ -47,11 +67,23 @@ class MemoryRepositorySpec extends UnitTestSpec {
     results.value(0)._id should equal(4)
   }
 
-  "search by id" should "return Noes if nothing matches" in {
+  "search by id" should "return None if nothing matches" in {
     val repo = new MemoryRepository[Organization]
     repo.add( generateOrgs(20))
 
     val results = repo.search("_id", "412431")
     results should equal(None)
+  }
+
+  "search by field" should "return matching organization" in {
+    val repo = new MemoryRepository[Organization]
+    val orgs = generateOrgs(20)
+    repo.add(orgs)
+
+    Organization.fields.foreach( f => {
+      val searchOrg = orgs(randIntBetween(0, 19))
+      repo.search(f.name, f.toSearchTerm(searchOrg)).value should contain(searchOrg)
+    })
+
   }
 }

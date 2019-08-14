@@ -98,7 +98,7 @@ class SearchConsoleSpec extends UnitTestSpec {
       inSequence(
         (mockConsole.printResponse _).expects(Response.Welcome),
         (mockConsole.readCommand _).expects().returns(Command.ListFields(Entity.Organizations)),
-        (mockConsole.printResponse _).expects(Response.EntityFields(Entity.Organizations, Organization.fields)),
+        (mockConsole.printResponse _).expects(Response.EntityFields[Organization](Entity.Organizations)),
         (mockConsole.readCommand _).expects().returns(Command.Quit)
       )
 

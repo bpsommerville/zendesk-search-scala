@@ -16,15 +16,33 @@ case class Organization (
 object Organization {
   implicit val rw: ZendeskPickle.ReadWriter[Organization] = ZendeskPickle.macroRW
 
-  val fields: Seq[SearchableField] = Seq(
-    SearchableField("_id", FieldType.Int),
-    SearchableField("url", FieldType.String),
-    SearchableField("externalId", FieldType.String),
-    SearchableField("name", FieldType.String),
-    SearchableField("domainNames", FieldType.String, collection = true),
-    SearchableField("details", FieldType.String),
-    SearchableField("createdAt", FieldType.DateTime),
-    SearchableField("sharedTickets", FieldType.String),
-    SearchableField("tags", FieldType.String, collection = true)
-  )
+
+  implicit object fields extends SearchableFields[Organization] {
+    override def fromString(s: String): SearchableField[Organization] = {
+      f.find( _.name == s).get
+    }
+
+    override def iterator: Iterator[SearchableField[Organization]] = f.iterator
+
+    private val f: Seq[SearchableField[Organization]] = Seq(
+   //    SearchableField("_id", FieldType.Int)(_._id),
+   //    SearchableField("url", FieldType.String)(_.url),
+   //    SearchableField("externalId", FieldType.String)(_.externalId),
+   //    SearchableField("name", FieldType.String)(_.name),
+   //    SearchableField("domainNames", FieldType.String, collection = true)(_.domainNames(0)),
+   //    SearchableField("details", FieldType.String)(_.details),
+   //    SearchableField("createdAt", FieldType.DateTime)(_.createdAt),
+   //    SearchableField("sharedTickets", FieldType.Bool)(_.sharedTickets),
+   //    SearchableField("tags", FieldType.String, collection = true)(_ => "_.tags(0)")
+       SearchableIntField("_id", _._id),
+       SearchableStringField("url", _.url),
+       SearchableStringField("externalId",_.externalId),
+       SearchableStringField("name", _.name),
+   //    SearchableField("domainNames", FieldType.String, collection = true)(_.domainNames(0)),
+       SearchableStringField("details",_.details),
+   //    SearchableField("createdAt", FieldType.DateTime)(_.createdAt),
+   //    SearchableField("sharedTickets", FieldType.Bool)(_.sharedTickets),
+   //    SearchableField("tags", FieldType.String, collection = true)(_ => "_.tags(0)")
+     )
+  }
 }
