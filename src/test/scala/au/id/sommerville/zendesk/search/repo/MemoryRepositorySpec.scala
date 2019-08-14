@@ -2,7 +2,8 @@ package au.id.sommerville.zendesk.search.repo
 
 import java.time.{OffsetDateTime, ZoneOffset}
 
-import au.id.sommerville.zendesk.search.UnitTestSpec
+import au.id.sommerville.zendesk.search.console.Entity.Organizations
+import au.id.sommerville.zendesk.search.{NoResultsError, UnitTestSpec, UnknownFieldError}
 import au.id.sommerville.zendesk.search.data.Organization
 import faker._
 
@@ -63,16 +64,16 @@ class MemoryRepositorySpec extends UnitTestSpec {
     repo.add( generateOrgs(20))
 
     val results = repo.search("_id", "4")
-    results.value should have length(1)
-    results.value(0)._id should equal(4)
+    results.right.value should have length(1)
+    results.right.value(0)._id should equal(4)
   }
 
-  "search by id" should "return None if nothing matches" in {
+  "search by id" should "return NoResultsError if nothing matches" in {
     val repo = new MemoryRepository[Organization]
     repo.add( generateOrgs(20))
 
     val results = repo.search("_id", "412431")
-    results should equal(None)
+    results.left.value should equal(NoResultsError)
   }
 
   "search by field" should "return matching organization" in {
@@ -82,8 +83,19 @@ class MemoryRepositorySpec extends UnitTestSpec {
 
     Organization.fields.foreach( f => {
       val searchOrg = orgs(randIntBetween(0, 19))
-      repo.search(f.name, f.toSearchTerm(searchOrg)).value should contain(searchOrg)
+      f.toSearchTerms(searchOrg).map(
+        repo.search(f.name, _ ).right.value should contain(searchOrg)
+      )
     })
+
+  }
+
+  "search by field" should "return UnknownFieldError when field not found" in {
+    val repo = new MemoryRepository[Organization]
+    val orgs = generateOrgs(20)
+    repo.add(orgs)
+
+    repo.search("bad","anything").left.value should equal(UnknownFieldError("bad"))
 
   }
 }

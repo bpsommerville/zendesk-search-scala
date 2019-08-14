@@ -2,7 +2,8 @@ package au.id.sommerville.zendesk.search.console
 
 import java.time.OffsetDateTime
 
-import au.id.sommerville.zendesk.search.UnitTestSpec
+import au.id.sommerville.zendesk.search.console.Entity.Organizations
+import au.id.sommerville.zendesk.search.{NoResultsError, UnitTestSpec, UnknownFieldError}
 import au.id.sommerville.zendesk.search.data.Organization
 import au.id.sommerville.zendesk.search.repo.SearchRepository
 
@@ -69,7 +70,7 @@ class SearchConsoleSpec extends UnitTestSpec {
     inSequence(
       (mockConsole.printResponse _).expects(Response.Welcome),
       (mockConsole.readCommand _).expects().returns(Command.Search(Entity.Organizations, "_id", "1234")),
-      (mockOrgSearch.search _).expects("_id", "1234").returns(Some(Seq(expectedOrg))),
+      (mockOrgSearch.search _).expects("_id", "1234").returns(Right(Seq(expectedOrg))),
       (mockConsole.printResponse _).expects(Response.SuccessfulSearchResponse(Seq(expectedOrg))),
       (mockConsole.readCommand _).expects().returns(Command.Quit)
     )
@@ -84,8 +85,22 @@ class SearchConsoleSpec extends UnitTestSpec {
      inSequence(
       (mockConsole.printResponse _).expects(Response.Welcome),
       (mockConsole.readCommand _).expects().returns(Command.Search(Entity.Organizations, "_id", "1234")),
-      (mockOrgSearch.search _).expects("_id", "1234").returns(None),
-      (mockConsole.printResponse _).expects(Response.NotFoundSearchResponse(Entity.Organizations, "_id", "1234")),
+      (mockOrgSearch.search _).expects("_id", "1234").returns(Left(NoResultsError)),
+      (mockConsole.printResponse _).expects(Response.NotFoundSearchResponse(Organizations,"_id","1234")),
+      (mockConsole.readCommand _).expects().returns(Command.Quit)
+    )
+
+    SearchConsole(mockConsole, mockOrgSearch).commandLoop
+  }
+  "search" should "display error when field is not valid" in {
+    val mockConsole = mock[ConsoleCommandResponse]
+    val mockOrgSearch = mock[SearchRepository[Organization]]
+
+     inSequence(
+      (mockConsole.printResponse _).expects(Response.Welcome),
+      (mockConsole.readCommand _).expects().returns(Command.Search(Entity.Organizations, "foo", "1234")),
+      (mockOrgSearch.search _).expects("foo", "1234").returns(Left(UnknownFieldError("foo"))),
+      (mockConsole.printResponse _).expects(Response.UnknownFieldSearchResponse(Organizations,"foo")),
       (mockConsole.readCommand _).expects().returns(Command.Quit)
     )
 

@@ -5,11 +5,11 @@ import java.time.format.{DateTimeFormatter, DateTimeFormatterBuilder, ResolverSt
 
 
 object ZendeskPickle extends upickle.AttributeTagged {
-  def camelToSnake(s: String) = {
+  def camelToSnake(s: String): String = {
     s.split("(?=[A-Z])", -1).map(_.toLowerCase).mkString("_")
   }
 
-  def snakeToCamel(s: String) = {
+  def snakeToCamel(s: String): String = {
     val res = s.split("(?<!^)_", -1).map(x => x(0).toUpper + x.drop(1)).mkString
     s(0).toLower + res.drop(1)
   }

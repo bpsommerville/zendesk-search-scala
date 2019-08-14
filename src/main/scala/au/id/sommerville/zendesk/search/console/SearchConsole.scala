@@ -1,8 +1,9 @@
 package au.id.sommerville.zendesk.search.console
 
+import au.id.sommerville.zendesk.search.{NoResultsError, UnknownFieldError}
 import au.id.sommerville.zendesk.search.console.Command.{Help, ListFields, Quit, Search}
 import au.id.sommerville.zendesk.search.console.Entity.Organizations
-import au.id.sommerville.zendesk.search.console.Response.{EntityFields, NotFoundSearchResponse, SearchResponse, SuccessfulSearchResponse}
+import au.id.sommerville.zendesk.search.console.Response.{EntityFields, NotFoundSearchResponse, SearchResponse, SuccessfulSearchResponse, UnknownFieldSearchResponse}
 import au.id.sommerville.zendesk.search.data.{Organization, Searchable}
 import au.id.sommerville.zendesk.search.repo.SearchRepository
 
@@ -88,16 +89,18 @@ class SearchConsole(
   def search(entity: Entity, field: String, value: String): SearchResponse = {
     (entity match {
       case Organizations => orgs.search(field, value)
-    }) map {
-      SuccessfulSearchResponse(_)
-    } getOrElse(
-      NotFoundSearchResponse(entity, field, value)
-    )
+    }) match {
+      case Right(r) => SuccessfulSearchResponse(r)
+      case Left(e) => e match {
+        case NoResultsError => NotFoundSearchResponse(entity, field, value)
+        case e:UnknownFieldError => UnknownFieldSearchResponse(entity, e.field)
+      }
+    }
   }
 
   def fields(entity: Entity): Response = {
     entity match {
-      case Organizations => EntityFields(entity, Organization.fields)
+      case Organizations => EntityFields[Organization](entity)
     }
   }
 

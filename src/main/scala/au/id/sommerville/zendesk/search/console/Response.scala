@@ -1,5 +1,6 @@
 package au.id.sommerville.zendesk.search.console
 
+import au.id.sommerville.zendesk.search.{NoResultsError, UnknownFieldError}
 import au.id.sommerville.zendesk.search.data.Organization.fields
 import au.id.sommerville.zendesk.search.data.{Organization, Searchable, SearchableField, SearchableFields, ZendeskPickle}
 
@@ -45,6 +46,9 @@ object Response {
 
   case class NotFoundSearchResponse(entity: Entity, field: String, value: String) extends SearchResponse{
     override def out: Seq[String] = Seq(s"No results found for ${entity} with ${field} = ${value}")
+  }
+  case class UnknownFieldSearchResponse(entity: Entity, field: String) extends SearchResponse{
+    override def out: Seq[String] = Seq(s"${entity} does not have a searchable field: ${field}")
   }
 
   case class EntityFields[T <: Searchable](entity: Entity)(implicit fields: SearchableFields[T] ) extends Response {
