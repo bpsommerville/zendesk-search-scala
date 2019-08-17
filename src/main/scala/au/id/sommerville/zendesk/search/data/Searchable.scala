@@ -6,7 +6,8 @@ import au.id.sommerville.zendesk.search.SearchError
 import au.id.sommerville.zendesk.search.console.Entity
 
 trait Searchable {
-  val _id: Int
+  type IdType
+  val _id: IdType
 }
 
 trait SearchableFields[E <: Searchable] extends Iterable[SearchableField[E]]{
@@ -16,41 +17,46 @@ trait SearchableFields[E <: Searchable] extends Iterable[SearchableField[E]]{
 
 trait SearchableField[E <: Searchable] {
   val name: String
-//  val collection: Boolean = false
-  def toSearchTerms( e: E): Iterable[String]
+  def toSearchTerms( e: E): Iterable[Option[String]]
 }
 
 trait SearchableValueField[E <: Searchable, T] extends SearchableField[E] {
-  val get:(E) => T
-  override def toSearchTerms(e: E): Iterable[String] = Seq(get(e).toString)
+  val get:(E) => Option[T]
+  override def toSearchTerms(e: E): Iterable[Option[String]] = Seq(get(e).map(_.toString))
 }
 
 trait SearchableCollectionField[E <: Searchable, T] extends SearchableField[E] {
-  val get:(E) => Iterable[T]
-  override def toSearchTerms(e: E): Iterable[String] = get(e).map(_.toString)
+  val get:(E) => Option[Iterable[T]]
+  override def toSearchTerms(e: E):  Iterable[Option[String]]= {
+    get(e).flatMap(
+      Some(_).filter(_.nonEmpty).map(
+        _.map(v => Some(v.toString))
+      )
+    ).getOrElse(Seq(None))
+  }
 }
 
 case class SearchableStringField[E <: Searchable](
   name: String,
-  get:(E) => String
+  get:(E) => Option[String]
 )  extends SearchableValueField[E, String]
 
 case class SearchableIntField[E <: Searchable](
   name: String,
-  get:(E) => Int
+  get:(E) => Option[Int]
 )  extends SearchableValueField[E, Int]
 
 case class SearchableBoolField[E <: Searchable](
   name: String,
-  get:(E) => Boolean
+  get:(E) => Option[Boolean]
 )  extends SearchableValueField[E, Boolean]
 
 case class SearchableDateTimeField[E <: Searchable](
   name: String,
-  get:(E) => OffsetDateTime
+  get:(E) => Option[OffsetDateTime]
 )  extends SearchableValueField[E, OffsetDateTime]
 
 case class SearchableStringCollectionField[E <: Searchable](
   name: String,
-  get:(E) => Iterable[String]
+  get:(E) => Option[Iterable[String]]
 )  extends SearchableCollectionField[E, String]

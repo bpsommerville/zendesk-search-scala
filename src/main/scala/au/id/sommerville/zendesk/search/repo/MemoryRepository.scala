@@ -7,10 +7,10 @@ import au.id.sommerville.zendesk.search.{NoResultsError, SearchError}
  *
  */
 class MemoryRepository[T <: Searchable](implicit fields: SearchableFields[T]) extends SearchRepository[T] {
-  var data: Map[Int, T] = Map()
+  var data: Map[T#IdType, T] = Map()
   //  var indexes: mutable.Map[SearchableField[T], mutable.Map[String, mutable.Seq[T]]] = mutable.Map()
 
-  def find(id: Int): Seq[T] = {
+  def find(id: T#IdType): Seq[T] = {
     Seq(data(id))
   }
 
@@ -27,15 +27,20 @@ class MemoryRepository[T <: Searchable](implicit fields: SearchableFields[T]) ex
     //    })
   }
 
-  override def search(field: String, value: String): Either[SearchError, Seq[T]] = {
+  override def search(field: String, value: Option[String]): Either[SearchError, Seq[T]] = {
     for {
       searchableField <- fields.fromString(field)
       results <- search(searchableField, value)
     } yield results
   }
 
-  def search(field: SearchableField[T], value: String): Either[SearchError, Seq[T]] = {
-    data.values.filter(e => field.toSearchTerms(e).exists(_ == value)).toSeq match {
+  def search(field: SearchableField[T], value: Option[String]): Either[SearchError, Seq[T]] = {
+
+    def entityMatchesSearch(e: T ) = {
+      field.toSearchTerms(e).exists(_ == value)
+    }
+
+    data.values.filter(entityMatchesSearch).toSeq match {
       case Nil => Left(NoResultsError)
       case r => Right(r)
     }

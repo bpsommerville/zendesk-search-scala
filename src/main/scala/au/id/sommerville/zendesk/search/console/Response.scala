@@ -2,7 +2,7 @@ package au.id.sommerville.zendesk.search.console
 
 import au.id.sommerville.zendesk.search.{NoResultsError, UnknownFieldError}
 import au.id.sommerville.zendesk.search.data.Organization.fields
-import au.id.sommerville.zendesk.search.data.{Organization, Searchable, SearchableField, SearchableFields, ZendeskPickle}
+import au.id.sommerville.zendesk.search.data.{Organization, Searchable, SearchableField, SearchableFields, Ticket, User, ZendeskPickle}
 
 trait Response {
   def out: Seq[String]
@@ -35,6 +35,8 @@ object Response {
       def writeEntity[T](t: T) = {
         (t match {
           case o: Organization => write(o, 2)
+          case u: User => write(u, 2)
+          case t: Ticket => write(t, 2)
           case _ => ""
         }).split("[\n\r]+")
           .filter(_.trim.nonEmpty)

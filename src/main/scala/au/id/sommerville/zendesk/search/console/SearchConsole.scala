@@ -1,11 +1,11 @@
 package au.id.sommerville.zendesk.search.console
 
-import au.id.sommerville.zendesk.search.{NoResultsError, UnknownFieldError}
 import au.id.sommerville.zendesk.search.console.Command.{Help, ListFields, Quit, Search}
-import au.id.sommerville.zendesk.search.console.Entity.Organizations
-import au.id.sommerville.zendesk.search.console.Response.{EntityFields, NotFoundSearchResponse, SearchResponse, SuccessfulSearchResponse, UnknownFieldSearchResponse}
-import au.id.sommerville.zendesk.search.data.{Organization, Searchable}
+import au.id.sommerville.zendesk.search.console.Entity.{Organizations, Tickets, Users}
+import au.id.sommerville.zendesk.search.console.Response._
+import au.id.sommerville.zendesk.search.data.{Organization, Ticket, User}
 import au.id.sommerville.zendesk.search.repo.SearchRepository
+import au.id.sommerville.zendesk.search.{NoResultsError, UnknownFieldError}
 
 import scala.annotation.tailrec
 import scala.io.StdIn
@@ -62,7 +62,9 @@ trait SearchRepos
 
 class SearchConsole(
   io: ConsoleCommandResponse,
-  orgs: SearchRepository[Organization]
+  orgs: SearchRepository[Organization],
+  users: SearchRepository[User],
+  tickets: SearchRepository[Ticket]
 ) {
 
 
@@ -88,12 +90,14 @@ class SearchConsole(
 
   def search(entity: Entity, field: String, value: String): SearchResponse = {
     (entity match {
-      case Organizations => orgs.search(field, value)
+      case Organizations => orgs.search(field, Some(value))
+      case Users => users.search(field, Some(value))
+      case Tickets => tickets.search(field, Some(value))
     }) match {
       case Right(r) => SuccessfulSearchResponse(r)
       case Left(e) => e match {
         case NoResultsError => NotFoundSearchResponse(entity, field, value)
-        case e:UnknownFieldError => UnknownFieldSearchResponse(entity, e.field)
+        case e: UnknownFieldError => UnknownFieldSearchResponse(entity, e.field)
       }
     }
   }
@@ -101,14 +105,17 @@ class SearchConsole(
   def fields(entity: Entity): Response = {
     entity match {
       case Organizations => EntityFields[Organization](entity)
+      case Users => EntityFields[User](entity)
+      case Tickets => EntityFields[Ticket](entity)
     }
   }
 
 }
 
 object SearchConsole {
-  def apply(io: ConsoleCommandResponse, orgs: SearchRepository[Organization]): SearchConsole = {
-    new SearchConsole(io, orgs)
+  def apply(io: ConsoleCommandResponse, orgs: SearchRepository[Organization],
+    users: SearchRepository[User], tickets: SearchRepository[Ticket]): SearchConsole = {
+    new SearchConsole(io, orgs, users, tickets)
   }
 
 }

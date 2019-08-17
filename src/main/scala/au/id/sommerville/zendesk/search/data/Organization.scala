@@ -15,7 +15,9 @@ case class Organization (
   details: String,
   sharedTickets: Boolean,
   tags: Set[String]
-) extends Searchable
+) extends Searchable {
+  type IdType = Int
+}
 
 object Organization {
   implicit val rw: ZendeskPickle.ReadWriter[Organization] = ZendeskPickle.macroRW
@@ -33,15 +35,15 @@ object Organization {
     override def iterator: Iterator[SearchableField[Organization]] = f.iterator
 
     private val f: Seq[SearchableField[Organization]] = Seq(
-       SearchableIntField("_id", _._id),
-       SearchableStringField("url", _.url),
-       SearchableStringField("externalId",_.externalId),
-       SearchableStringField("name", _.name),
-       SearchableStringCollectionField("domainNames",_.domainNames),
-       SearchableStringField("details",_.details),
-       SearchableDateTimeField("createdAt",_.createdAt),
-       SearchableBoolField("sharedTickets", _.sharedTickets),
-       SearchableStringCollectionField("tags", _.tags)
+       SearchableIntField("_id", e=>Some(e._id)),
+       SearchableStringField("url", e=>Some(e.url)),
+       SearchableStringField("externalId",e=>Some(e.externalId)),
+       SearchableStringField("name", e=>Some(e.name)),
+       SearchableStringCollectionField("domainNames",e=>Some(e.domainNames)),
+       SearchableStringField("details",e=>Some(e.details)),
+       SearchableDateTimeField("createdAt",e=>Some(e.createdAt)),
+       SearchableBoolField("sharedTickets", e=>Some(e.sharedTickets)),
+       SearchableStringCollectionField("tags", e=>Some(e.tags))
      )
   }
 }

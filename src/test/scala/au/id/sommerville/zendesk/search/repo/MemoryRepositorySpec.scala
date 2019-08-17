@@ -1,10 +1,10 @@
 package au.id.sommerville.zendesk.search.repo
 
 import java.time.{OffsetDateTime, ZoneOffset}
+import java.util.{Locale, TimeZone}
 
-import au.id.sommerville.zendesk.search.console.Entity.Organizations
+import au.id.sommerville.zendesk.search.data.{FakeData, Organization, Searchable, SearchableFields, SearchableIntField, Ticket, User}
 import au.id.sommerville.zendesk.search.{NoResultsError, UnitTestSpec, UnknownFieldError}
-import au.id.sommerville.zendesk.search.data.Organization
 import faker._
 
 import scala.util.Random
@@ -13,89 +13,104 @@ import scala.util.Random
 /**
  *
  */
-class MemoryRepositorySpec extends UnitTestSpec {
+abstract class MemoryRepositorySpec[T <: Searchable] extends UnitTestSpec {
 
-  def genSeq( max: Int, gen: () => String ) = {
-    for (i <- 0 to Random.nextInt(max)) yield gen()
-  }
+  def generateData(count: Int): Seq[T]
 
-  def randIntBetween(low: Int, high: Int) : Int = {
-    Random.nextInt(high - low + 1) + low
-  }
+  def createRepo(): MemoryRepository[T]
 
-  def generateOrgs(count: Int) = {
-    (1 to count).map( id =>
-      Organization(
-        _id = id,
-        url = s"http://initech.zendesk.com/api/v2/organizations/id.json",
-        externalId = java.util.UUID.randomUUID.toString,
-        name = Name.name,
-        domainNames = genSeq(4, () => Internet.domain_name),
-        createdAt = OffsetDateTime.of(
-          randIntBetween(1983, 2019),
-          randIntBetween(1, 12),
-          randIntBetween(1, 28),
-          randIntBetween(0, 23),
-          randIntBetween(0, 59),
-          randIntBetween(0, 59),
-          0,
-          ZoneOffset.ofHours(randIntBetween(-11, 11))
-        ),
-        details = Lorem.paragraph(),
-        sharedTickets = Random.nextBoolean(),
-        tags = Lorem.words(Random.nextInt(4)).toSet
-      )
-    )
-  }
+  def searchableFields(): SearchableFields[T]
 
   "add" should "add data to repository and allow them to be retrieved by _id" in {
-    val repo = new MemoryRepository[Organization]
-    repo.add( generateOrgs(20))
-    (1 to 20).foreach( id => {
-      val found = repo.find(id)
+    val repo = createRepo()
+    val data = generateData(20)
+    repo.add(data)
+    data.foreach(e => {
+      val found = repo.find(e._id)
       found.loneElement should have(
-        Symbol("_id")(id)
+        Symbol("_id")(e._id)
       )
     })
   }
 
-  "search by id" should "retrieve org with matching id" in {
-    val repo = new MemoryRepository[Organization]
-    repo.add( generateOrgs(20))
+  "search by id" should "retrieve entity with matching id" in {
+    val repo = createRepo()
+    val data = generateData(20)
+    repo.add(data)
 
-    val results = repo.search("_id", "4")
-    results.right.value should have length(1)
-    results.right.value(0)._id should equal(4)
+    val results = repo.search("_id", Some(data(4)._id.toString))
+    results.right.value should have length (1)
+    results.right.value should contain(data(4))
   }
 
   "search by id" should "return NoResultsError if nothing matches" in {
-    val repo = new MemoryRepository[Organization]
-    repo.add( generateOrgs(20))
+    val repo = createRepo()
+    repo.add(generateData(20))
 
-    val results = repo.search("_id", "412431")
+    val results = repo.search("_id", Some("412431"))
     results.left.value should equal(NoResultsError)
   }
 
-  "search by field" should "return matching organization" in {
-    val repo = new MemoryRepository[Organization]
-    val orgs = generateOrgs(20)
-    repo.add(orgs)
+  "search by field" should "return matching entity" in {
+    val repo = createRepo()
+    val data = generateData(20)
+    repo.add(data)
 
-    Organization.fields.foreach( f => {
-      val searchOrg = orgs(randIntBetween(0, 19))
-      f.toSearchTerms(searchOrg).map(
-        repo.search(f.name, _ ).right.value should contain(searchOrg)
+    searchableFields.foreach(f => {
+      val searchEntity = data(FakeData.randIntBetween(0, 19))
+      f.toSearchTerms(searchEntity).map(
+        repo.search(f.name, _).right.value should contain(searchEntity)
       )
     })
 
   }
 
-  "search by field" should "return UnknownFieldError when field not found" in {
-    val repo = new MemoryRepository[Organization]
-    val orgs = generateOrgs(20)
-    repo.add(orgs)
 
-    repo.search("bad","anything").left.value should equal(UnknownFieldError("bad"))
+  "search by field" should "return UnknownFieldError when field not found" in {
+    val repo = createRepo()
+    val data = generateData(20)
+    repo.add(data)
+
+    repo.search("bad", Some("anything")).left.value should equal(UnknownFieldError("bad"))
 
   }
+}
+
+class OrgMemoryRepositorySpec extends MemoryRepositorySpec[Organization] {
+  def generateData(count: Int) = {
+    (1 to count).map(FakeData.org)
+  }
+
+  def searchableFields: SearchableFields[Organization] = {
+    Organization.fields
+  }
+
+  override def createRepo(): MemoryRepository[Organization] = new MemoryRepository[Organization]()
+}
+
+
+class UserMemoryRepositorySpec extends MemoryRepositorySpec[User] {
+
+  def generateData(count: Int) = {
+    (1 to count).map(FakeData.user)
+  }
+
+  def searchableFields: SearchableFields[User] = {
+    User.fields
+  }
+
+  override def createRepo(): MemoryRepository[User] = new MemoryRepository[User]()
+}
+
+class TicketMemoryRepositorySpec extends MemoryRepositorySpec[Ticket] {
+
+  def generateData(count: Int) = {
+    (1 to count).map( _ => FakeData.ticket(FakeData.uuid()))
+  }
+
+  def searchableFields: SearchableFields[Ticket] = {
+    Ticket.fields
+  }
+
+  override def createRepo(): MemoryRepository[Ticket] = new MemoryRepository[Ticket]()
 }
