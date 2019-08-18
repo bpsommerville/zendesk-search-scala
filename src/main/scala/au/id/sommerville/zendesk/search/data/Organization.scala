@@ -37,12 +37,12 @@ object Organization {
     private val f: Seq[SearchableField[Organization]] = Seq(
        SearchableIntField("_id", e=>Some(e._id)),
        SearchableStringField("url", e=>Some(e.url)),
-       SearchableStringField("externalId",e=>Some(e.externalId)),
+       SearchableStringField("external_id",e=>Some(e.externalId)),
        SearchableStringField("name", e=>Some(e.name)),
-       SearchableStringCollectionField("domainNames",e=>Some(e.domainNames)),
+       SearchableStringCollectionField("domain_names",e=>Some(e.domainNames)),
        SearchableStringField("details",e=>Some(e.details)),
-       SearchableDateTimeField("createdAt",e=>Some(e.createdAt)),
-       SearchableBoolField("sharedTickets", e=>Some(e.sharedTickets)),
+       SearchableDateTimeField("created_at",e=>Some(e.createdAt)),
+       SearchableBoolField("shared_tickets", e=>Some(e.sharedTickets)),
        SearchableStringCollectionField("tags", e=>Some(e.tags))
      )
   }

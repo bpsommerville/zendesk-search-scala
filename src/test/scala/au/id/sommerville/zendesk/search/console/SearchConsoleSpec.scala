@@ -112,6 +112,25 @@ class SearchConsoleSpec extends UnitTestSpec {
     SearchConsole(mockConsole, mockOrgSearch, mockUserSearch, mockTicketSearch).commandLoop
   }
 
+  "search for !field" should "invoke search with None value and output response" in {
+    val mockConsole = mock[ConsoleCommandResponse]
+    val mockOrgSearch = mock[SearchRepository[Organization]]
+    val mockUserSearch = mock[SearchRepository[User]]
+    val mockTicketSearch = mock[SearchRepository[Ticket]]
+
+    val expectedTicket = FakeData.ticket("12345")
+
+    inSequence(
+      (mockConsole.printResponse _).expects(Response.Welcome),
+      (mockConsole.readCommand _).expects().returns(Right(Command.Search(Entity.Tickets, "!description", ""))),
+      (mockTicketSearch.search _).expects("description", None).returns(Right(Seq(expectedTicket))),
+      (mockConsole.printResponse _).expects(Response.SuccessfulSearchResponse(Seq(expectedTicket))),
+      (mockConsole.readCommand _).expects().returns(Right(Command.Quit))
+    )
+
+    SearchConsole(mockConsole, mockOrgSearch, mockUserSearch, mockTicketSearch).commandLoop
+  }
+
   "search" should "display message when nothing found" in {
     val mockConsole = mock[ConsoleCommandResponse]
     val mockOrgSearch = mock[SearchRepository[Organization]]
@@ -122,7 +141,7 @@ class SearchConsoleSpec extends UnitTestSpec {
       (mockConsole.printResponse _).expects(Response.Welcome),
       (mockConsole.readCommand _).expects().returns(Right(Command.Search(Entity.Organizations, "_id", "1234"))),
       (mockOrgSearch.search _).expects("_id", Some("1234")).returns(Left(NoResultsError)),
-      (mockConsole.printResponse _).expects(Response.NotFoundSearchResponse(Organizations, "_id", "1234")),
+      (mockConsole.printResponse _).expects(Response.NotFoundSearchResponse(Organizations, "_id", Some("1234"))),
       (mockConsole.readCommand _).expects().returns(Right(Command.Quit))
     )
 

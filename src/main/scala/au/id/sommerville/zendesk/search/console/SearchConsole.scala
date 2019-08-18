@@ -98,14 +98,15 @@ class SearchConsole(
   }
 
   def search(entity: Entity, field: String, value: String): SearchResponse = {
+    val (f, v) = if  (field.startsWith("!"))  (field.substring(1), None) else (field, Some(value))
     (entity match {
-      case Organizations => orgs.search(field, Some(value))
-      case Users => users.search(field, Some(value))
-      case Tickets => tickets.search(field, Some(value))
+      case Organizations => orgs.search(f, v)
+      case Users => users.search(f, v)
+      case Tickets => tickets.search(f, v)
     }) match {
       case Right(r) => SuccessfulSearchResponse(r)
       case Left(e) => e match {
-        case NoResultsError => NotFoundSearchResponse(entity, field, value)
+        case NoResultsError => NotFoundSearchResponse(entity, f, v)
         case e: UnknownFieldError => UnknownFieldSearchResponse(entity, e.field)
         case other => UnexpectedErrorResponse(other)
       }

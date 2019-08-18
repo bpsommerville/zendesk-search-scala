@@ -20,11 +20,10 @@ TODO.
 
 
 # TODO
-* search missing (None) values
-* search empty strings
-* make output and field names match
-* arg parsing for load location
-* optimize search for non linear time
 * include related entities
+* optimize search for non linear time
+* Update help & readme
+* arg parsing for load location
+* script to run
 
 

@@ -44,19 +44,19 @@ object Ticket {
     private val f: Seq[SearchableField[Ticket]] = Seq(
        SearchableStringField("_id",e=>Some(e._id)),
        SearchableStringField("url",e=>Some(e.url)),
-       SearchableStringField("externalId",e=>Some(e.externalId)),
-       SearchableDateTimeField("createdAt",e=>Some(e.createdAt)),
+       SearchableStringField("external_id",e=>Some(e.externalId)),
+       SearchableDateTimeField("created_at",e=>Some(e.createdAt)),
        SearchableStringField("type", _.`type`),
        SearchableStringField("subject",e=>Some(e.subject)),
        SearchableStringField("description",_.description),
        SearchableStringField("priority",e=>Some(e.priority)),
        SearchableStringField("status",e=>Some(e.status)),
-       SearchableIntField("submitterId",e=>Some(e.submitterId)),
-       SearchableIntField("assigneeId",_.assigneeId),
-       SearchableIntField("organizationId",_.organizationId),
+       SearchableIntField("submitter_id",e=>Some(e.submitterId)),
+       SearchableIntField("assignee_id",_.assigneeId),
+       SearchableIntField("organization_id",_.organizationId),
        SearchableStringCollectionField("tags",e=>Some(e.tags)),
-       SearchableBoolField("hasIncidents",e=>Some(e.hasIncidents)),
-       SearchableDateTimeField("dueAt",_.dueAt),
+       SearchableBoolField("has_incidents",e=>Some(e.hasIncidents)),
+       SearchableDateTimeField("due_at",_.dueAt),
        SearchableStringField("via",e=>Some(e.via))
     )
   }

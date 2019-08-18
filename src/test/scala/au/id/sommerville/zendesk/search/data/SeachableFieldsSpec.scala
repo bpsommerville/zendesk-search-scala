@@ -10,12 +10,12 @@ class SeachableFieldsSpec extends UnitTestSpec {
     Organization.fields.map(_.name) should equal(Seq(
       "_id",
       "url",
-      "externalId",
+      "external_id",
       "name",
-      "domainNames", //, FieldType.String, collection = true,
+      "domain_names", //, FieldType.String, collection = true,
       "details",
-      "createdAt", //, FieldType.DateTime,
-      "sharedTickets",
+      "created_at", //, FieldType.DateTime,
+      "shared_tickets",
       "tags" //, FieldType.String, collection = tru)
     ))
   }
@@ -23,20 +23,20 @@ class SeachableFieldsSpec extends UnitTestSpec {
     User.fields.map(_.name) should equal(Seq(
       "_id",
       "url",
-      "externalId",
+      "external_id",
       "name",
       "alias",
-      "createdAt",
+      "created_at",
       "active",
       "verified",
       "shared",
       "locale",
       "timezone",
-      "lastLoginAt",
+      "last_login_at",
       "email",
       "phone",
       "signature",
-      "organizationId",
+      "organization_id",
       "tags",
       "suspended",
       "role"
@@ -47,19 +47,19 @@ class SeachableFieldsSpec extends UnitTestSpec {
     Ticket.fields.map(_.name) should equal(Seq(
       "_id",
       "url",
-      "externalId",
-      "createdAt",
+      "external_id",
+      "created_at",
       "type",
       "subject",
       "description",
       "priority",
       "status",
-      "submitterId",
-      "assigneeId",
-      "organizationId",
+      "submitter_id",
+      "assignee_id",
+      "organization_id",
       "tags",
-      "hasIncidents",
-      "dueAt",
+      "has_incidents",
+      "due_at",
       "via"
     ))
   }

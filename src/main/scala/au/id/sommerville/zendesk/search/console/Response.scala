@@ -46,9 +46,10 @@ object Response {
     }
   }
 
-  case class NotFoundSearchResponse(entity: Entity, field: String, value: String) extends SearchResponse{
-    override def out: Seq[String] = Seq(s"No results found for ${entity} with ${field} = ${value}")
+  case class NotFoundSearchResponse(entity: Entity, field: String, value: Option[String]) extends SearchResponse{
+    override def out: Seq[String] = Seq(s"No results found for ${entity} with ${field} ${value.map( v => s"= '${v}'").getOrElse("not set")}")
   }
+
   case class UnknownFieldSearchResponse(entity: Entity, field: String) extends SearchResponse with ErrorResponse {
     override def out: Seq[String] = Seq(s"${entity} does not have a searchable field: ${field}")
   }
