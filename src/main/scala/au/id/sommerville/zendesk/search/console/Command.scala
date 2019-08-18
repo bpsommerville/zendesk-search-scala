@@ -1,5 +1,6 @@
 package au.id.sommerville.zendesk.search.console
 
+import au.id.sommerville.zendesk.search.{SearchError, UnknownCommandError, UnknownSubCommandError}
 import au.id.sommerville.zendesk.search.data.{Organization, Ticket}
 
 trait Command
@@ -33,25 +34,23 @@ object Command {
 
   case object Help extends Command
 
-  case object Unknown extends Command
-
   case class Search(entity: Entity, field: String, value: String) extends Command
 
   case class ListFields(entity: Entity) extends Command
 
-  def parse(line: String): Command = {
+  def parse(line: String): Either[SearchError,Command] = {
     line.split("\\s+").toList match {
-      case ("h" | "help") :: Nil => Help
-      case ("q" | "quit") :: Nil => Quit
+      case ("h" | "help") :: Nil => Right(Help)
+      case ("q" | "quit") :: Nil => Right(Quit)
       case ("s" | "search") :: e :: f :: v =>
         Entity.parse(e).map(
-          e => Search(e, f, v.mkString(" "))
-        ).getOrElse(Unknown)
+          e => Right(Search(e, f, v.mkString(" ")))
+        ).getOrElse(Left(UnknownSubCommandError("search", (e :: f :: v).mkString(" "))))
       case ("f" | "fields") :: e :: Nil =>
         Entity.parse(e).map(
-          e => ListFields(e)
-        ).getOrElse(Unknown)
-      case _ => Unknown
+          e => Right(ListFields(e))
+        ).getOrElse(Left(UnknownSubCommandError("fields", e)))
+      case _ => Left(UnknownCommandError(line))
     }
   }
 

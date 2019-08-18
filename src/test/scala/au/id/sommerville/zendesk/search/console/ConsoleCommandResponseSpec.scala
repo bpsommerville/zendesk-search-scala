@@ -1,6 +1,6 @@
 package au.id.sommerville.zendesk.search.console
 
-import au.id.sommerville.zendesk.search.UnitTestSpec
+import au.id.sommerville.zendesk.search.{UnitTestSpec, UnknownCommandError, UnknownSubCommandError}
 import org.scalatest.prop.TableDrivenPropertyChecks
 
 
@@ -46,28 +46,47 @@ class ConsoleCommandResponseSpec extends UnitTestSpec with TableDrivenPropertyCh
     forAll(commands) {
       (line: String, cmd: Command) => {
         (mockConsoleIO.readLine _).when().once().returns(line)
-        ccr.readCommand should equal(cmd)
+        ccr.readCommand.right.value should equal(cmd)
       }
     }
   }
 
-  val unknown = Table(
+  val unknownCommand = Table(
     ("line"),
     ("he"),
     ("1231p"),
     ("sddd"),
-    ("s foo _id 1234"),
     (""),
   )
-  "readCommand" should "return Unknown if line doesn't match any commands" in {
+  "readCommand" should "return unknown command error if line doesn't match any commands" in {
     val mockConsoleIO = stub[ConsoleIO]
     val ccr = ConsoleCommandResponse(mockConsoleIO)
 
-    forAll(unknown) {
+    forAll(unknownCommand) {
       (line: String) => {
 
         (mockConsoleIO.readLine _).when().once().returns(line)
-        ccr.readCommand should equal(Command.Unknown)
+        ccr.readCommand.left.value should equal(UnknownCommandError(line))
+      }
+    }
+  }
+
+  val unknownSubCommand = Table(
+    ("line", "command"),
+    ("s foo _id 1234", "search"),
+//    ("s foo 1234", "search"),
+//    ("s foo", "search"),
+    ("f foo", "fields"),
+  )
+  "readCommand" should "return unknown sub command error if second token is not a valid option for command" in {
+    val mockConsoleIO = stub[ConsoleIO]
+    val ccr = ConsoleCommandResponse(mockConsoleIO)
+
+    forAll(unknownSubCommand) {
+      (line: String, command:String) => {
+
+        (mockConsoleIO.readLine _).when().once().returns(line)
+        ccr.readCommand.left.value should equal(UnknownSubCommandError(command, line.substring(line.indexOf(' ')+1)))
       }
     }
   }

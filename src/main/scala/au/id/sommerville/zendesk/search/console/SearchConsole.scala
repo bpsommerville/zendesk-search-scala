@@ -5,7 +5,7 @@ import au.id.sommerville.zendesk.search.console.Entity.{Organizations, Tickets, 
 import au.id.sommerville.zendesk.search.console.Response._
 import au.id.sommerville.zendesk.search.data.{Organization, Ticket, User}
 import au.id.sommerville.zendesk.search.repo.SearchRepository
-import au.id.sommerville.zendesk.search.{NoResultsError, UnknownFieldError}
+import au.id.sommerville.zendesk.search.{NoResultsError, SearchError, UnknownCommandError, UnknownFieldError, UnknownSubCommandError}
 
 import scala.annotation.tailrec
 import scala.io.StdIn
@@ -36,7 +36,7 @@ trait ConsoleCommandResponse {
 
   def printResponse(response: Response): Unit
 
-  def readCommand: Command
+  def readCommand: Either[SearchError, Command]
 }
 
 
@@ -47,7 +47,7 @@ object ConsoleCommandResponse {
   ) extends ConsoleCommandResponse {
     override def printResponse(response: Response): Unit = io.printLines(response.out)
 
-    override def readCommand: Command = Command.parse(io.readLine)
+    override def readCommand: Either[SearchError, Command] = Command.parse(io.readLine)
   }
 
 
@@ -74,12 +74,21 @@ class SearchConsole(
     @tailrec
     def loop(): Unit = {
       io.readCommand match {
-        case Quit =>
-        case cmd =>
-          cmd match {
-            case Help => io.printResponse(Response.Help)
-            case Search(e, f, v) => io.printResponse(search(e, f, v))
-            case ListFields(e) => io.printResponse(fields(e))
+        case Right(Quit) =>
+        case cmdOrErr =>
+          cmdOrErr match {
+            case Right(cmd) =>
+              cmd match {
+                case Help => io.printResponse(Response.Help)
+                case Search(e, f, v) => io.printResponse(search(e, f, v))
+                case ListFields(e) => io.printResponse(fields(e))
+              }
+            case Left(err) =>
+              err match {
+                case UnknownCommandError(l) => io.printResponse(UnknownCommandResponse(l))
+                case UnknownSubCommandError(c,s) => io.printResponse(UnknownSubCommandResponse(c, s))
+                case other => io.printResponse(UnexpectedErrorResponse(other))
+              }
           }
           loop()
       }
@@ -98,6 +107,7 @@ class SearchConsole(
       case Left(e) => e match {
         case NoResultsError => NotFoundSearchResponse(entity, field, value)
         case e: UnknownFieldError => UnknownFieldSearchResponse(entity, e.field)
+        case other => UnexpectedErrorResponse(other)
       }
     }
   }

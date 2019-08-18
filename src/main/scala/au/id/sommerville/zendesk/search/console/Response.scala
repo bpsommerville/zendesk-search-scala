@@ -1,6 +1,6 @@
 package au.id.sommerville.zendesk.search.console
 
-import au.id.sommerville.zendesk.search.{NoResultsError, UnknownFieldError}
+import au.id.sommerville.zendesk.search.{NoResultsError, SearchError, UnknownFieldError}
 import au.id.sommerville.zendesk.search.data.Organization.fields
 import au.id.sommerville.zendesk.search.data.{Organization, Searchable, SearchableField, SearchableFields, Ticket, User, ZendeskPickle}
 
@@ -49,7 +49,7 @@ object Response {
   case class NotFoundSearchResponse(entity: Entity, field: String, value: String) extends SearchResponse{
     override def out: Seq[String] = Seq(s"No results found for ${entity} with ${field} = ${value}")
   }
-  case class UnknownFieldSearchResponse(entity: Entity, field: String) extends SearchResponse{
+  case class UnknownFieldSearchResponse(entity: Entity, field: String) extends SearchResponse with ErrorResponse {
     override def out: Seq[String] = Seq(s"${entity} does not have a searchable field: ${field}")
   }
 
@@ -57,6 +57,20 @@ object Response {
     override def out: Seq[String] = {
       Seq(s"Search ${entity} with:") ++ fields.map( f =>s"  ${f.name}")
     }
+  }
+
+  trait ErrorResponse extends Response;
+
+  case class UnknownCommandResponse(line: String) extends ErrorResponse {
+    override def out: Seq[String] = Seq(s"'${line}' is not a valid command.")
+  }
+
+  case class UnknownSubCommandResponse(command: String, subCommand: String) extends ErrorResponse {
+    override def out: Seq[String] = Seq(s"'${subCommand}' is not a valid option for the ${command} command")
+  }
+
+  case class UnexpectedErrorResponse(error: SearchError ) extends ErrorResponse with SearchResponse {
+    override def out: Seq[String] = Seq(s"Unexpected error : ${error}")
   }
 
 }
