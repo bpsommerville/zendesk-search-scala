@@ -27,6 +27,16 @@ case class Ticket(
   type IdType = String
 }
 
+case class ResolvedTicket(
+  ticket: Ticket,
+  organization: Option[Organization] = None,
+  submitter: Option[User] = None,
+  assignee: Option[User] = None) extends Searchable
+{
+  override type IdType = Ticket#IdType
+  override val _id = ticket._id
+}
+
 object Ticket {
   implicit val rw: ZendeskPickle.ReadWriter[Ticket] = ZendeskPickle.macroRW
 

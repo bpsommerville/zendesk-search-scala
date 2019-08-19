@@ -10,4 +10,5 @@ import au.id.sommerville.zendesk.search.data.{Searchable, SearchableField}
 trait SearchRepository[T<: Searchable] {
   def search(field: String, value: Option[String]):Either[SearchError, Seq[T]]
 
+  def get(id: T#IdType): Option[T]
 }

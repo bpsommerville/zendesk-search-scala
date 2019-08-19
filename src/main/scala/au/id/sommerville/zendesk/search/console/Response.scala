@@ -2,7 +2,7 @@ package au.id.sommerville.zendesk.search.console
 
 import au.id.sommerville.zendesk.search.{NoResultsError, SearchError, UnknownFieldError}
 import au.id.sommerville.zendesk.search.data.Organization.fields
-import au.id.sommerville.zendesk.search.data.{Organization, Searchable, SearchableField, SearchableFields, Ticket, User, ZendeskPickle}
+import au.id.sommerville.zendesk.search.data.{Organization, ResolvedOrganization, ResolvedTicket, ResolvedUser, Searchable, SearchableField, SearchableFields, Ticket, User, ZendeskPickle}
 
 trait Response {
   def out: Seq[String]
@@ -29,21 +29,24 @@ object Response {
   trait SearchResponse extends Response
 
   case class SuccessfulSearchResponse(entities: Seq[Searchable]) extends SearchResponse {
-    import au.id.sommerville.zendesk.search.data.ZendeskPickle._
 
     override def out: Seq[String] = {
+      val separator = Seq("---------------------------------------------------------------------------")
       def writeEntity[T](t: T) = {
-        (t match {
-          case o: Organization => write(o, 2)
-          case u: User => write(u, 2)
-          case t: Ticket => write(t, 2)
-          case _ => ""
-        }).split("[\n\r]+")
-          .filter(_.trim.nonEmpty)
+        separator ++ (
+        t match {
+          case o: Organization => ConsoleWriter.write(o)
+          case ro: ResolvedOrganization => ConsoleWriter.write(ro)
+          case u: User =>  ConsoleWriter.write(u)
+          case ru: ResolvedUser =>  ConsoleWriter.write(ru)
+          case t: Ticket =>  ConsoleWriter.write(t)
+          case rt: ResolvedTicket =>  ConsoleWriter.write(rt)
+          case _ => Seq()
+        })
       }
-
-      entities.flatMap( writeEntity(_))
+      entities.flatMap( writeEntity(_)) ++ separator
     }
+
   }
 
   case class NotFoundSearchResponse(entity: Entity, field: String, value: Option[String]) extends SearchResponse{

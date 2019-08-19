@@ -19,6 +19,16 @@ case class Organization (
   type IdType = Int
 }
 
+case class ResolvedOrganization(
+  organization: Organization,
+  users: Option[Seq[User]] = None,
+  tickets: Option[Seq[Ticket]] = None) extends Searchable
+{
+  override type IdType = Organization#IdType
+  override val _id = organization._id
+}
+
+
 object Organization {
   implicit val rw: ZendeskPickle.ReadWriter[Organization] = ZendeskPickle.macroRW
 

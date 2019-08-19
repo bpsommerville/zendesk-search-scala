@@ -20,7 +20,6 @@ TODO.
 
 
 # TODO
-* include related entities
 * optimize search for non linear time
 * Update help & readme
 * arg parsing for load location

@@ -26,8 +26,8 @@ abstract class MemoryRepositorySpec[T <: Searchable] extends UnitTestSpec {
     val data = generateData(20)
     repo.add(data)
     data.foreach(e => {
-      val found = repo.find(e._id)
-      found.loneElement should have(
+      val found = repo.get(e._id)
+      found.value should have(
         Symbol("_id")(e._id)
       )
     })

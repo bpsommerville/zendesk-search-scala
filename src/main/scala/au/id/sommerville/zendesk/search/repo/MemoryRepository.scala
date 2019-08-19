@@ -10,9 +10,10 @@ class MemoryRepository[T <: Searchable](implicit fields: SearchableFields[T]) ex
   var data: Map[T#IdType, T] = Map()
   //  var indexes: mutable.Map[SearchableField[T], mutable.Map[String, mutable.Seq[T]]] = mutable.Map()
 
-  def find(id: T#IdType): Seq[T] = {
-    Seq(data(id))
+  override def get(id: T#IdType): Option[T] = {
+    data.get(id)
   }
+
 
   def add(values: Seq[T]): Any = {
     data = values.map(o => o._id -> o).toMap
