@@ -1,9 +1,9 @@
 package au.id.sommerville.zendesk.search.console
 
 import au.id.sommerville.zendesk.search.console.Entity.Organizations
-import au.id.sommerville.zendesk.search.data.{FakeData, Organization, ResolvedOrganization, ResolvedTicket, ResolvedUser, Ticket, User}
+import au.id.sommerville.zendesk.search.data._
 import au.id.sommerville.zendesk.search.repo.SearchRepository
-import au.id.sommerville.zendesk.search.{NoResultsError, UnitTestSpec, UnknownCommandError, UnknownFieldError, UnknownSubCommandError}
+import au.id.sommerville.zendesk.search._
 
 
 /**
@@ -19,6 +19,7 @@ class SearchConsoleSpec extends UnitTestSpec {
     val mockTicketSearch = mock[SearchRepository[Ticket]]
 
     (mockConsole.printResponse _).expects(Response.Welcome)
+    (mockConsole.printResponse _).expects(Response.Help)
     (mockConsole.readCommand _).expects().returns(Right(Command.Quit))
 
     SearchConsole(mockConsole, mockOrgSearch, mockUserSearch, mockTicketSearch).commandLoop
@@ -32,6 +33,7 @@ class SearchConsoleSpec extends UnitTestSpec {
 
     inSequence(
       (mockConsole.printResponse _).expects(Response.Welcome),
+      (mockConsole.printResponse _).expects(Response.Help),
       (mockConsole.readCommand _).expects().returns(Right(Command.Quit))
     )
 
@@ -46,6 +48,7 @@ class SearchConsoleSpec extends UnitTestSpec {
 
     inSequence(
       (mockConsole.printResponse _).expects(Response.Welcome),
+      (mockConsole.printResponse _).expects(Response.Help),
       (mockConsole.readCommand _).expects().returns(Right(Command.Help)),
       (mockConsole.printResponse _).expects(Response.Help),
       (mockConsole.readCommand _).expects().returns(Right(Command.Quit))
@@ -65,6 +68,7 @@ class SearchConsoleSpec extends UnitTestSpec {
 
     inSequence(
       (mockConsole.printResponse _).expects(Response.Welcome),
+      (mockConsole.printResponse _).expects(Response.Help),
       (mockConsole.readCommand _).expects().returns(Right(Command.Search(Entity.Organizations, "_id", "1234"))),
       (mockOrgSearch.search _).expects("_id", Some("1234")).returns(Right(Seq(expectedOrg))),
       (mockUserSearch.search _).expects("organization_id", Some("1234")).returns(Left(NoResultsError)),
@@ -86,6 +90,7 @@ class SearchConsoleSpec extends UnitTestSpec {
 
     inSequence(
       (mockConsole.printResponse _).expects(Response.Welcome),
+      (mockConsole.printResponse _).expects(Response.Help),
       (mockConsole.readCommand _).expects().returns(Right(Command.Search(Entity.Users, "_id", "1234"))),
       (mockUserSearch.search _).expects("_id", Some("1234")).returns(Right(Seq(expectedUser))),
       (mockTicketSearch.search _).expects("submitter_id", Some("1234")).returns(Left(NoResultsError)),
@@ -107,6 +112,7 @@ class SearchConsoleSpec extends UnitTestSpec {
 
     inSequence(
       (mockConsole.printResponse _).expects(Response.Welcome),
+      (mockConsole.printResponse _).expects(Response.Help),
       (mockConsole.readCommand _).expects().returns(Right(Command.Search(Entity.Tickets, "_id", "1234"))),
       (mockTicketSearch.search _).expects("_id", Some("1234")).returns(Right(Seq(expectedTicket))),
       (mockUserSearch.get _).expects(23).returns(None),
@@ -127,6 +133,7 @@ class SearchConsoleSpec extends UnitTestSpec {
 
     inSequence(
       (mockConsole.printResponse _).expects(Response.Welcome),
+      (mockConsole.printResponse _).expects(Response.Help),
       (mockConsole.readCommand _).expects().returns(Right(Command.Search(Entity.Tickets, "!description", ""))),
       (mockTicketSearch.search _).expects("description", None).returns(Right(Seq(expectedTicket))),
       (mockUserSearch.get _).expects(23).returns(None),
@@ -145,6 +152,7 @@ class SearchConsoleSpec extends UnitTestSpec {
 
     inSequence(
       (mockConsole.printResponse _).expects(Response.Welcome),
+      (mockConsole.printResponse _).expects(Response.Help),
       (mockConsole.readCommand _).expects().returns(Right(Command.Search(Entity.Organizations, "_id", "1234"))),
       (mockOrgSearch.search _).expects("_id", Some("1234")).returns(Left(NoResultsError)),
       (mockConsole.printResponse _).expects(Response.NotFoundSearchResponse(Organizations, "_id", Some("1234"))),
@@ -161,6 +169,7 @@ class SearchConsoleSpec extends UnitTestSpec {
 
     inSequence(
       (mockConsole.printResponse _).expects(Response.Welcome),
+      (mockConsole.printResponse _).expects(Response.Help),
       (mockConsole.readCommand _).expects().returns(Right(Command.Search(Entity.Organizations, "foo", "1234"))),
       (mockOrgSearch.search _).expects("foo", Some("1234")).returns(Left(UnknownFieldError("foo"))),
       (mockConsole.printResponse _).expects(Response.UnknownFieldSearchResponse(Organizations, "foo")),
@@ -177,6 +186,7 @@ class SearchConsoleSpec extends UnitTestSpec {
     val mockTicketSearch = mock[SearchRepository[Ticket]]
     inSequence(
       (mockConsole.printResponse _).expects(Response.Welcome),
+      (mockConsole.printResponse _).expects(Response.Help),
       (mockConsole.readCommand _).expects().returns(Right(Command.ListFields(Entity.Organizations))),
       (mockConsole.printResponse _).expects(Response.EntityFields[Organization](Entity.Organizations)),
       (mockConsole.readCommand _).expects().returns(Right(Command.Quit))
@@ -191,6 +201,7 @@ class SearchConsoleSpec extends UnitTestSpec {
     val mockTicketSearch = mock[SearchRepository[Ticket]]
     inSequence(
       (mockConsole.printResponse _).expects(Response.Welcome),
+      (mockConsole.printResponse _).expects(Response.Help),
       (mockConsole.readCommand _).expects().returns(Right(Command.ListFields(Entity.Users))),
       (mockConsole.printResponse _).expects(Response.EntityFields[User](Entity.Users)),
       (mockConsole.readCommand _).expects().returns(Right(Command.Quit))
@@ -205,6 +216,7 @@ class SearchConsoleSpec extends UnitTestSpec {
     val mockTicketSearch = mock[SearchRepository[Ticket]]
     inSequence(
       (mockConsole.printResponse _).expects(Response.Welcome),
+      (mockConsole.printResponse _).expects(Response.Help),
       (mockConsole.readCommand _).expects().returns(Right(Command.ListFields(Entity.Tickets))),
       (mockConsole.printResponse _).expects(Response.EntityFields[Ticket](Entity.Tickets)),
       (mockConsole.readCommand _).expects().returns(Right(Command.Quit))
@@ -220,6 +232,7 @@ class SearchConsoleSpec extends UnitTestSpec {
     val mockTicketSearch = mock[SearchRepository[Ticket]]
     inSequence(
       (mockConsole.printResponse _).expects(Response.Welcome),
+      (mockConsole.printResponse _).expects(Response.Help),
       (mockConsole.readCommand _).expects().returns(Left(UnknownCommandError("foo"))),
       (mockConsole.printResponse _).expects(Response.UnknownCommandResponse("foo")),
       (mockConsole.readCommand _).expects().returns(Right(Command.Quit))
@@ -234,6 +247,7 @@ class SearchConsoleSpec extends UnitTestSpec {
     val mockTicketSearch = mock[SearchRepository[Ticket]]
     inSequence(
       (mockConsole.printResponse _).expects(Response.Welcome),
+      (mockConsole.printResponse _).expects(Response.Help),
       (mockConsole.readCommand _).expects().returns(Left(UnknownSubCommandError("foo", "blah"))),
       (mockConsole.printResponse _).expects(Response.UnknownSubCommandResponse("foo", "blah")),
       (mockConsole.readCommand _).expects().returns(Right(Command.Quit))

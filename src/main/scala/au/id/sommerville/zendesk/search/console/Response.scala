@@ -20,10 +20,15 @@ object Response {
 
   object Help extends FixedResponse(
     "Enter command:",
-    "* search (s)",
-    "* fields (f)",
-    "* help (h)",
-    "* quit (q)"
+    "* (s)earch  [ (o)organization | (u) user | (t)ticket ] <field> <search term>",
+    "* (f)ields  [ (o)organization | (u) user | (t)ticket ]",
+    "* (h)elp",
+    "* (q)uit",
+    "",
+    "Examples:",
+    " - to search tickets by type:  search tickets type bug",
+    " - to search a field with an empty value '':  search tickets type",
+    " - to search for a field that is not set: search tickets !assignee_id ",
   )
 
   trait SearchResponse extends Response

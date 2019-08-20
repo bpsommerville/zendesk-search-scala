@@ -15,6 +15,10 @@ libraryDependencies ++= Seq(
   "com.github.pjfanning" %% "scala-faker" % "0.5.0" % "it,test"
 )
 
+fork in IntegrationTest := true
+javaOptions ++= Seq("-Xms2048M", "-Xmx8196M", "-XX:+CMSClassUnloadingEnabled")
+dependencyClasspath in IntegrationTest := (dependencyClasspath in IntegrationTest).value ++ (exportedProducts in Test).value
+
 lazy val root = (project in file("."))
   .configs(IntegrationTest)
   .settings(

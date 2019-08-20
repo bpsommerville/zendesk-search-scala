@@ -71,6 +71,7 @@ class SearchConsole(
 
   def commandLoop = {
     io.printResponse(Response.Welcome)
+    io.printResponse(Response.Help)
 
     @tailrec
     def loop(): Unit = {
@@ -158,8 +159,8 @@ class SearchConsole(
 
 object SearchConsole {
   def apply(io: ConsoleCommandResponse, orgs: SearchRepository[Organization],
-    users: SearchRepository[User], tickets: SearchRepository[Ticket]): SearchConsole = {
-    new SearchConsole(io, orgs, users, tickets)
+    users: SearchRepository[User], tickets: SearchRepository[Ticket], maxResultsToResolve: Int = 100): SearchConsole = {
+    new SearchConsole(io, orgs, users, tickets, maxResultsToResolve )
   }
 
 }
