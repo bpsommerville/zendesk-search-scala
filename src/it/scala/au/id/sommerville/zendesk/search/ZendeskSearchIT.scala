@@ -22,7 +22,7 @@ class ZendeskSearchIT extends FlatSpec with Matchers {
         }
       }
     }
-    outCapture.toString.split("\r\n") should contain inOrder (
+    outCapture.toString.split("\r\n") should contain inOrder(
       "Welcome to Zendesk Search",
       ">---------------------------------------------------------------------------",
       "_id:             101",

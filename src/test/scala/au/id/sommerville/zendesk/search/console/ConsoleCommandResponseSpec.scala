@@ -74,8 +74,8 @@ class ConsoleCommandResponseSpec extends UnitTestSpec with TableDrivenPropertyCh
   val unknownSubCommand = Table(
     ("line", "command"),
     ("s foo _id 1234", "search"),
-//    ("s foo 1234", "search"),
-//    ("s foo", "search"),
+    //    ("s foo 1234", "search"),
+    //    ("s foo", "search"),
     ("f foo", "fields"),
   )
   "readCommand" should "return unknown sub command error if second token is not a valid option for command" in {
@@ -83,10 +83,10 @@ class ConsoleCommandResponseSpec extends UnitTestSpec with TableDrivenPropertyCh
     val ccr = ConsoleCommandResponse(mockConsoleIO)
 
     forAll(unknownSubCommand) {
-      (line: String, command:String) => {
+      (line: String, command: String) => {
 
         (mockConsoleIO.readLine _).when().once().returns(line)
-        ccr.readCommand.left.value should equal(UnknownSubCommandError(command, line.substring(line.indexOf(' ')+1)))
+        ccr.readCommand.left.value should equal(UnknownSubCommandError(command, line.substring(line.indexOf(' ') + 1)))
       }
     }
   }

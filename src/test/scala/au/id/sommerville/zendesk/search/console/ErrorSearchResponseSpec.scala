@@ -1,8 +1,8 @@
 package au.id.sommerville.zendesk.search.console
 
+import au.id.sommerville.zendesk.search.UnitTestSpec
 import au.id.sommerville.zendesk.search.console.Entity.{Organizations, Tickets, Users}
 import au.id.sommerville.zendesk.search.console.Response.{NotFoundSearchResponse, UnknownFieldSearchResponse}
-import au.id.sommerville.zendesk.search.{NoResultsError, UnitTestSpec, UnknownFieldError}
 import org.scalatest.prop.TableDrivenPropertyChecks
 
 /**

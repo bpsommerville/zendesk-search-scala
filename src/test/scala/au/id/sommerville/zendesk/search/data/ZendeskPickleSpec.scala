@@ -40,28 +40,28 @@ class ZendeskPickleSpec extends UnitTestSpec with TableDrivenPropertyChecks {
     }
   }
 
-  case class Thing(_id:Int, myFieldA: Int, myFieldB: String, nocase: String)
+  case class Thing(_id: Int, myFieldA: Int, myFieldB: String, nocase: String)
 
   "ZendeskPickle" should "use snake case for json and camel case for scala" in {
     implicit def thingRW: ZendeskPickle.ReadWriter[Thing] = ZendeskPickle.macroRW
 
     // snake_case_keys read-writing
-    ZendeskPickle.write(Thing(10,1, "gg", "foo")) should equal("""{"_id":10,"my_field_a":1,"my_field_b":"gg","nocase":"foo"}""")
+    ZendeskPickle.write(Thing(10, 1, "gg", "foo")) should equal("""{"_id":10,"my_field_a":1,"my_field_b":"gg","nocase":"foo"}""")
 
-    ZendeskPickle.read[Thing]("""{"_id":10,"my_field_a":1,"my_field_b":"gg","nocase":"foo"}""") should equal(Thing(10,1, "gg", "foo"))
+    ZendeskPickle.read[Thing]("""{"_id":10,"my_field_a":1,"my_field_b":"gg","nocase":"foo"}""") should equal(Thing(10, 1, "gg", "foo"))
   }
 
-  case class OptionalThing(_id:Int, myFieldA: Option[Int] = None, myFieldB: Option[String] = None)
+  case class OptionalThing(_id: Int, myFieldA: Option[Int] = None, myFieldB: Option[String] = None)
 
   "ZendeskPickle" should "use accept missing values for optional fields" in {
     implicit def thingRW: ZendeskPickle.ReadWriter[OptionalThing] = ZendeskPickle.macroRW
 
 
-    ZendeskPickle.write(OptionalThing(10,Some(1), Some("gg"))) should equal("""{"_id":10,"my_field_a":1,"my_field_b":"gg"}""")
-    ZendeskPickle.write(OptionalThing(10,None, None)) should equal("""{"_id":10}""")
+    ZendeskPickle.write(OptionalThing(10, Some(1), Some("gg"))) should equal("""{"_id":10,"my_field_a":1,"my_field_b":"gg"}""")
+    ZendeskPickle.write(OptionalThing(10, None, None)) should equal("""{"_id":10}""")
 
-    ZendeskPickle.read[OptionalThing]("""{"_id":10,"my_field_a":1,"my_field_b":"gg"}""") should equal(OptionalThing(10,Some(1), Some("gg")))
-    ZendeskPickle.read[OptionalThing]("""{"_id":10}""") should equal(OptionalThing(10,None,None))
+    ZendeskPickle.read[OptionalThing]("""{"_id":10,"my_field_a":1,"my_field_b":"gg"}""") should equal(OptionalThing(10, Some(1), Some("gg")))
+    ZendeskPickle.read[OptionalThing]("""{"_id":10}""") should equal(OptionalThing(10, None, None))
   }
 
 }

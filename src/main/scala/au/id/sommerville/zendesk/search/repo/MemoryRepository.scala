@@ -11,7 +11,6 @@ import scala.collection.mutable
 class MemoryRepository[T <: Searchable](values: Seq[T])(implicit fields: SearchableFields[T]) extends SearchRepository[T] {
   val data: Map[T#IdType, T] = buildData(values)
   val indexes: Map[SearchableField[T], Map[Option[String], Seq[T]]] = buildIndexes(values)
-  //  var indexes: mutable.Map[SearchableField[T], mutable.Map[String, mutable.Seq[T]]] = mutable.Map()
 
   def buildData(values: Seq[T]): Map[T#IdType, T] = values.map(o => o._id -> o).toMap
 
@@ -45,11 +44,11 @@ class MemoryRepository[T <: Searchable](values: Seq[T])(implicit fields: Searcha
   def search(field: SearchableField[T], value: Option[String]): Either[SearchError, Seq[T]] = {
 
     (for {
-       f <- indexes.get(field)
-       r <- f.get(value)
-     } yield r) match {
-       case Some(s) => Right(s)
-       case None => Left(NoResultsError)
-     }
+      f <- indexes.get(field)
+      r <- f.get(value)
+    } yield r) match {
+      case Some(s) => Right(s)
+      case None => Left(NoResultsError)
+    }
   }
 }

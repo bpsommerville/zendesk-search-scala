@@ -8,7 +8,7 @@ import java.nio.file.Path
  */
 object Loader {
   def loadOrganizations(inputPath: Path): Seq[Organization] = {
-     ZendeskPickle.read[Seq[Organization]](inputPath)
+    ZendeskPickle.read[Seq[Organization]](inputPath)
   }
 
   def loadUsers(inputPath: Path): Seq[User] = {

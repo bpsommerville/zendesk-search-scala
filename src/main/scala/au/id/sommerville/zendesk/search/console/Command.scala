@@ -1,7 +1,6 @@
 package au.id.sommerville.zendesk.search.console
 
 import au.id.sommerville.zendesk.search.{SearchError, UnknownCommandError, UnknownSubCommandError}
-import au.id.sommerville.zendesk.search.data.{Organization, Ticket}
 
 trait Command
 
@@ -38,7 +37,7 @@ object Command {
 
   case class ListFields(entity: Entity) extends Command
 
-  def parse(line: String): Either[SearchError,Command] = {
+  def parse(line: String): Either[SearchError, Command] = {
     line.split("\\s+").toList match {
       case ("h" | "help") :: Nil => Right(Help)
       case ("q" | "quit") :: Nil => Right(Quit)

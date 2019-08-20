@@ -1,9 +1,9 @@
 package au.id.sommerville.zendesk.search.console
 
+import au.id.sommerville.zendesk.search._
 import au.id.sommerville.zendesk.search.console.Entity.Organizations
 import au.id.sommerville.zendesk.search.data._
 import au.id.sommerville.zendesk.search.repo.SearchRepository
-import au.id.sommerville.zendesk.search._
 
 
 /**

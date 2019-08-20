@@ -1,7 +1,7 @@
 package au.id.sommerville.zendesk.search.data
 
+import java.time.format.{DateTimeFormatter, DateTimeFormatterBuilder}
 import java.time.{OffsetDateTime, ZoneId, ZoneOffset}
-import java.time.format.{DateTimeFormatter, DateTimeFormatterBuilder, ResolverStyle}
 
 
 object ZendeskPickle extends upickle.AttributeTagged {

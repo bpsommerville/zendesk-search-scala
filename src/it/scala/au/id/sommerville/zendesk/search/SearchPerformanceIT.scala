@@ -24,6 +24,7 @@ class SearchPerformanceIT extends FlatSpec with Matchers {
 
     override def readCommand: Either[SearchError, Command] = Right(cmds.dequeue())
   }
+
   val nanos_to_millis = 1000 * 1000
   val nanos_to_seconds = nanos_to_millis * 1000
 
@@ -32,7 +33,7 @@ class SearchPerformanceIT extends FlatSpec with Matchers {
     block // call-by-name
     val t1 = System.nanoTime()
     val duration = t1 - t0
-    println(s"Elapsed time: ${duration / nanos_to_seconds}s ${(duration % nanos_to_seconds ) / nanos_to_millis}ms ")
+    println(s"Elapsed time: ${duration / nanos_to_seconds}s ${(duration % nanos_to_seconds) / nanos_to_millis}ms ")
     duration
   }
 
@@ -44,11 +45,11 @@ class SearchPerformanceIT extends FlatSpec with Matchers {
     var currentTime = 0L
     var dataSize = 1000
     // Data size of 1,000,000+ takes minutes to just generate the data
-    while(previousTime < nanos_to_seconds && dataSize <= 100000  ) {
+    while (previousTime < nanos_to_seconds && dataSize <= 100000) {
       println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
       println(s"Running with data size = ${dataSize}")
       previousTime = currentTime
-      currentTime = runSearches(dataSize,  numberOfSearches)
+      currentTime = runSearches(dataSize, numberOfSearches)
       dataSize *= 10
     }
     val ratio: Double = currentTime * 1.0 / previousTime

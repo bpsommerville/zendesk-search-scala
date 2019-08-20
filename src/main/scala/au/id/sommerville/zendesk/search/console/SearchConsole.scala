@@ -160,7 +160,7 @@ class SearchConsole(
 object SearchConsole {
   def apply(io: ConsoleCommandResponse, orgs: SearchRepository[Organization],
     users: SearchRepository[User], tickets: SearchRepository[Ticket], maxResultsToResolve: Int = 100): SearchConsole = {
-    new SearchConsole(io, orgs, users, tickets, maxResultsToResolve )
+    new SearchConsole(io, orgs, users, tickets, maxResultsToResolve)
   }
 
 }

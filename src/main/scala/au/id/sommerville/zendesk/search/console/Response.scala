@@ -1,8 +1,7 @@
 package au.id.sommerville.zendesk.search.console
 
-import au.id.sommerville.zendesk.search.{NoResultsError, SearchError, UnknownFieldError}
-import au.id.sommerville.zendesk.search.data.Organization.fields
-import au.id.sommerville.zendesk.search.data.{Organization, ResolvedOrganization, ResolvedTicket, ResolvedUser, Searchable, SearchableField, SearchableFields, Ticket, User, ZendeskPickle}
+import au.id.sommerville.zendesk.search.SearchError
+import au.id.sommerville.zendesk.search.data._
 
 trait Response {
   def out: Seq[String]
@@ -15,7 +14,7 @@ object Response {
   }
 
   object Welcome extends FixedResponse(
-      "Welcome to Zendesk Search"
+    "Welcome to Zendesk Search"
   )
 
   object Help extends FixedResponse(
@@ -37,34 +36,36 @@ object Response {
 
     override def out: Seq[String] = {
       val separator = Seq("---------------------------------------------------------------------------")
+
       def writeEntity[T](t: T) = {
         separator ++ (
-        t match {
-          case o: Organization => ConsoleWriter.write(o)
-          case ro: ResolvedOrganization => ConsoleWriter.write(ro)
-          case u: User =>  ConsoleWriter.write(u)
-          case ru: ResolvedUser =>  ConsoleWriter.write(ru)
-          case t: Ticket =>  ConsoleWriter.write(t)
-          case rt: ResolvedTicket =>  ConsoleWriter.write(rt)
-          case _ => Seq()
-        })
+          t match {
+            case o: Organization => ConsoleWriter.write(o)
+            case ro: ResolvedOrganization => ConsoleWriter.write(ro)
+            case u: User => ConsoleWriter.write(u)
+            case ru: ResolvedUser => ConsoleWriter.write(ru)
+            case t: Ticket => ConsoleWriter.write(t)
+            case rt: ResolvedTicket => ConsoleWriter.write(rt)
+            case _ => Seq()
+          })
       }
-      entities.flatMap( writeEntity(_)) ++ separator
+
+      entities.flatMap(writeEntity(_)) ++ separator
     }
 
   }
 
-  case class NotFoundSearchResponse(entity: Entity, field: String, value: Option[String]) extends SearchResponse{
-    override def out: Seq[String] = Seq(s"No results found for ${entity} with ${field} ${value.map( v => s"= '${v}'").getOrElse("not set")}")
+  case class NotFoundSearchResponse(entity: Entity, field: String, value: Option[String]) extends SearchResponse {
+    override def out: Seq[String] = Seq(s"No results found for ${entity} with ${field} ${value.map(v => s"= '${v}'").getOrElse("not set")}")
   }
 
   case class UnknownFieldSearchResponse(entity: Entity, field: String) extends SearchResponse with ErrorResponse {
     override def out: Seq[String] = Seq(s"${entity} does not have a searchable field: ${field}")
   }
 
-  case class EntityFields[T <: Searchable](entity: Entity)(implicit fields: SearchableFields[T] ) extends Response {
+  case class EntityFields[T <: Searchable](entity: Entity)(implicit fields: SearchableFields[T]) extends Response {
     override def out: Seq[String] = {
-      Seq(s"Search ${entity} with:") ++ fields.map( f =>s"  ${f.name}")
+      Seq(s"Search ${entity} with:") ++ fields.map(f => s"  ${f.name}")
     }
   }
 
@@ -78,7 +79,7 @@ object Response {
     override def out: Seq[String] = Seq(s"'${subCommand}' is not a valid option for the ${command} command")
   }
 
-  case class UnexpectedErrorResponse(error: SearchError ) extends ErrorResponse with SearchResponse {
+  case class UnexpectedErrorResponse(error: SearchError) extends ErrorResponse with SearchResponse {
     override def out: Seq[String] = Seq(s"Unexpected error : ${error}")
   }
 

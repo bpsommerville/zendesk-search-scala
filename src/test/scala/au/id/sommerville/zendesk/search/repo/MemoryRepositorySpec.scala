@@ -1,13 +1,7 @@
 package au.id.sommerville.zendesk.search.repo
 
-import java.time.{OffsetDateTime, ZoneOffset}
-import java.util.{Locale, TimeZone}
-
-import au.id.sommerville.zendesk.search.data.{FakeData, Organization, Searchable, SearchableFields, SearchableIntField, Ticket, User}
+import au.id.sommerville.zendesk.search.data._
 import au.id.sommerville.zendesk.search.{NoResultsError, UnitTestSpec, UnknownFieldError}
-import faker._
-
-import scala.util.Random
 
 
 /**
@@ -80,7 +74,7 @@ class OrgMemoryRepositorySpec extends MemoryRepositorySpec[Organization] {
     Organization.fields
   }
 
-  override def createRepo(values:Seq[Organization]): MemoryRepository[Organization] = new MemoryRepository[Organization](values)
+  override def createRepo(values: Seq[Organization]): MemoryRepository[Organization] = new MemoryRepository[Organization](values)
 }
 
 
@@ -94,18 +88,18 @@ class UserMemoryRepositorySpec extends MemoryRepositorySpec[User] {
     User.fields
   }
 
-  override def createRepo(values:Seq[User]): MemoryRepository[User] = new MemoryRepository[User](values)
+  override def createRepo(values: Seq[User]): MemoryRepository[User] = new MemoryRepository[User](values)
 }
 
 class TicketMemoryRepositorySpec extends MemoryRepositorySpec[Ticket] {
 
   def generateData(count: Int) = {
-    (1 to count).map( _ => FakeData.ticket(FakeData.uuid()))
+    (1 to count).map(_ => FakeData.ticket(FakeData.uuid()))
   }
 
   def searchableFields: SearchableFields[Ticket] = {
     Ticket.fields
   }
 
-  override def createRepo(values:Seq[Ticket]): MemoryRepository[Ticket] = new MemoryRepository[Ticket](values)
+  override def createRepo(values: Seq[Ticket]): MemoryRepository[Ticket] = new MemoryRepository[Ticket](values)
 }

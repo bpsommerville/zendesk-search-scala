@@ -6,6 +6,7 @@ import au.id.sommerville.zendesk.search.UnitTestSpec
  *
  */
 class SearchableCollectionFieldSpec extends UnitTestSpec {
+
   case class Dummy(
     _id: Int,
     tags: Set[String] = Set(),
@@ -39,7 +40,7 @@ class SearchableCollectionFieldSpec extends UnitTestSpec {
   }
 
   "search terms" should "be list of None when optional collection is None" in {
-    val test = Dummy(1, optTags =None)
+    val test = Dummy(1, optTags = None)
     optTagField.toSearchTerms(test) should equal(Seq(None))
   }
 

@@ -2,9 +2,9 @@ package au.id.sommerville.zendesk.search.data
 
 import java.time.OffsetDateTime
 
-import au.id.sommerville.zendesk.search.{SearchError, UnknownFieldError}
 import au.id.sommerville.zendesk.search.console.Entity
-import au.id.sommerville.zendesk.search.console.Entity.{Organizations, Users}
+import au.id.sommerville.zendesk.search.console.Entity.Users
+import au.id.sommerville.zendesk.search.{SearchError, UnknownFieldError}
 
 case class User(
   _id: Int,
@@ -34,8 +34,7 @@ case class ResolvedUser(
   user: User,
   organization: Option[Organization] = None,
   submittedTickets: Option[Seq[Ticket]] = None,
-  assignedTickets: Option[Seq[Ticket]] = None) extends Searchable
-{
+  assignedTickets: Option[Seq[Ticket]] = None) extends Searchable {
   override type IdType = User#IdType
   override val _id = user._id
 }
@@ -45,8 +44,9 @@ object User {
 
   implicit object fields extends SearchableFields[User] {
     val entity: Entity = Users
+
     override def fromString(s: String): Either[SearchError, SearchableField[User]] = {
-      f.find( _.name == s) match {
+      f.find(_.name == s) match {
         case Some(sf) => Right(sf)
         case None => Left(UnknownFieldError(s))
       }
@@ -55,26 +55,27 @@ object User {
     override def iterator: Iterator[SearchableField[User]] = f.iterator
 
     private val f: Seq[SearchableField[User]] = Seq(
-       SearchableIntField("_id",e=>Some(e._id)),
-       SearchableStringField("url",e=>Some(e.url)),
-       SearchableStringField("external_id",e=>Some(e.externalId)),
-       SearchableStringField("name",e=>Some(e.name)),
-       SearchableStringField("alias",_.alias),
-       SearchableDateTimeField("created_at",e=>Some(e.createdAt)),
-       SearchableBoolField("active",e=>Some(e.active)),
-       SearchableBoolField("verified",_.verified),
-       SearchableBoolField("shared",e=>Some(e.shared)),
-       SearchableStringField("locale",_.locale) ,
-       SearchableStringField("timezone",_.timezone) ,
-       SearchableDateTimeField("last_login_at",e=>Some(e.lastLoginAt)),
-       SearchableStringField("email",_.email),
-       SearchableStringField("phone",e=>Some(e.phone)),
-       SearchableStringField("signature",e=>Some(e.signature)),
-       SearchableIntField("organization_id",_.organizationId) ,
-       SearchableStringCollectionField("tags",e=>Some(e.tags)),
-       SearchableBoolField("suspended",e=>Some(e.suspended)),
-       SearchableStringField("role",e=>Some(e.role))
-     )
+      SearchableIntField("_id", e => Some(e._id)),
+      SearchableStringField("url", e => Some(e.url)),
+      SearchableStringField("external_id", e => Some(e.externalId)),
+      SearchableStringField("name", e => Some(e.name)),
+      SearchableStringField("alias", _.alias),
+      SearchableDateTimeField("created_at", e => Some(e.createdAt)),
+      SearchableBoolField("active", e => Some(e.active)),
+      SearchableBoolField("verified", _.verified),
+      SearchableBoolField("shared", e => Some(e.shared)),
+      SearchableStringField("locale", _.locale),
+      SearchableStringField("timezone", _.timezone),
+      SearchableDateTimeField("last_login_at", e => Some(e.lastLoginAt)),
+      SearchableStringField("email", _.email),
+      SearchableStringField("phone", e => Some(e.phone)),
+      SearchableStringField("signature", e => Some(e.signature)),
+      SearchableIntField("organization_id", _.organizationId),
+      SearchableStringCollectionField("tags", e => Some(e.tags)),
+      SearchableBoolField("suspended", e => Some(e.suspended)),
+      SearchableStringField("role", e => Some(e.role))
+    )
   }
+
 }
 

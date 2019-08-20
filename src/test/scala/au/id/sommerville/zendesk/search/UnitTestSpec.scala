@@ -1,7 +1,7 @@
 package au.id.sommerville.zendesk.search
 
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.{EitherValues, FlatSpec, LoneElement, Matchers, OptionValues}
+import org.scalatest._
 
 /**
  *

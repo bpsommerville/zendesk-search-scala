@@ -82,7 +82,7 @@ object FakeData {
     )
   }
 
-  def ticket(id : String, orgIdMax: Int = 20, userIdMax: Int = 20): Ticket = {
+  def ticket(id: String, orgIdMax: Int = 20, userIdMax: Int = 20): Ticket = {
     Ticket(
       _id = id,
       url = s"http=//initech.zendesk.com/api/v2/tickets/${id}.json",

@@ -2,9 +2,9 @@ package au.id.sommerville.zendesk.search.data
 
 import java.time.OffsetDateTime
 
-import au.id.sommerville.zendesk.search.{SearchError, UnknownFieldError}
 import au.id.sommerville.zendesk.search.console.Entity
-import au.id.sommerville.zendesk.search.console.Entity.{Tickets, Users}
+import au.id.sommerville.zendesk.search.console.Entity.Tickets
+import au.id.sommerville.zendesk.search.{SearchError, UnknownFieldError}
 
 case class Ticket(
   _id: String,
@@ -31,8 +31,7 @@ case class ResolvedTicket(
   ticket: Ticket,
   organization: Option[Organization] = None,
   submitter: Option[User] = None,
-  assignee: Option[User] = None) extends Searchable
-{
+  assignee: Option[User] = None) extends Searchable {
   override type IdType = Ticket#IdType
   override val _id = ticket._id
 }
@@ -42,8 +41,9 @@ object Ticket {
 
   implicit object fields extends SearchableFields[Ticket] {
     val entity: Entity = Tickets
+
     override def fromString(s: String): Either[SearchError, SearchableField[Ticket]] = {
-      f.find( _.name == s) match {
+      f.find(_.name == s) match {
         case Some(sf) => Right(sf)
         case None => Left(UnknownFieldError(s))
       }
@@ -52,22 +52,23 @@ object Ticket {
     override def iterator: Iterator[SearchableField[Ticket]] = f.iterator
 
     private val f: Seq[SearchableField[Ticket]] = Seq(
-       SearchableStringField("_id",e=>Some(e._id)),
-       SearchableStringField("url",e=>Some(e.url)),
-       SearchableStringField("external_id",e=>Some(e.externalId)),
-       SearchableDateTimeField("created_at",e=>Some(e.createdAt)),
-       SearchableStringField("type", _.`type`),
-       SearchableStringField("subject",e=>Some(e.subject)),
-       SearchableStringField("description",_.description),
-       SearchableStringField("priority",e=>Some(e.priority)),
-       SearchableStringField("status",e=>Some(e.status)),
-       SearchableIntField("submitter_id",e=>Some(e.submitterId)),
-       SearchableIntField("assignee_id",_.assigneeId),
-       SearchableIntField("organization_id",_.organizationId),
-       SearchableStringCollectionField("tags",e=>Some(e.tags)),
-       SearchableBoolField("has_incidents",e=>Some(e.hasIncidents)),
-       SearchableDateTimeField("due_at",_.dueAt),
-       SearchableStringField("via",e=>Some(e.via))
+      SearchableStringField("_id", e => Some(e._id)),
+      SearchableStringField("url", e => Some(e.url)),
+      SearchableStringField("external_id", e => Some(e.externalId)),
+      SearchableDateTimeField("created_at", e => Some(e.createdAt)),
+      SearchableStringField("type", _.`type`),
+      SearchableStringField("subject", e => Some(e.subject)),
+      SearchableStringField("description", _.description),
+      SearchableStringField("priority", e => Some(e.priority)),
+      SearchableStringField("status", e => Some(e.status)),
+      SearchableIntField("submitter_id", e => Some(e.submitterId)),
+      SearchableIntField("assignee_id", _.assigneeId),
+      SearchableIntField("organization_id", _.organizationId),
+      SearchableStringCollectionField("tags", e => Some(e.tags)),
+      SearchableBoolField("has_incidents", e => Some(e.hasIncidents)),
+      SearchableDateTimeField("due_at", _.dueAt),
+      SearchableStringField("via", e => Some(e.via))
     )
   }
+
 }
