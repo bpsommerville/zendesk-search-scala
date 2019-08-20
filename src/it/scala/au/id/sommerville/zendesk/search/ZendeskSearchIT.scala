@@ -11,7 +11,7 @@ import org.scalatest.{FlatSpec, Matchers}
 class ZendeskSearchIT extends FlatSpec with Matchers {
 
   "App" should "read organisation data and retrieve by id" in {
-    val input = new StringReader(s"s\no\n_id\n101\n")
+    val input = new StringReader(s"s o _id 101\nq\n")
     val outCapture = new ByteArrayOutputStream
     val errCapture = new ByteArrayOutputStream
 
@@ -23,12 +23,11 @@ class ZendeskSearchIT extends FlatSpec with Matchers {
       }
     }
     outCapture.toString.split("\r\n") should contain inOrder (
-      "Welcome to Zendesk Search.",
-      "Enter type of search:",
-      "Enter field:",
-       "Enter value:",
-       "Organisation _id = 101"
-
+      "Welcome to Zendesk Search",
+      ">---------------------------------------------------------------------------",
+      "_id:             101",
+      "---------------------------------------------------------------------------",
+      ">"
     )
 
 

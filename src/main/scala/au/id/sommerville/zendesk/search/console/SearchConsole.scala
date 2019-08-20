@@ -1,11 +1,11 @@
 package au.id.sommerville.zendesk.search.console
 
+import au.id.sommerville.zendesk.search._
 import au.id.sommerville.zendesk.search.console.Command.{Help, ListFields, Quit, Search}
 import au.id.sommerville.zendesk.search.console.Entity.{Organizations, Tickets, Users}
 import au.id.sommerville.zendesk.search.console.Response._
-import au.id.sommerville.zendesk.search.data.{Organization, ResolvedOrganization, ResolvedTicket, ResolvedUser, Ticket, User}
+import au.id.sommerville.zendesk.search.data._
 import au.id.sommerville.zendesk.search.repo.SearchRepository
-import au.id.sommerville.zendesk.search.{NoResultsError, SearchError, UnknownCommandError, UnknownFieldError, UnknownSubCommandError}
 
 import scala.annotation.tailrec
 import scala.io.StdIn
@@ -64,7 +64,8 @@ class SearchConsole(
   io: ConsoleCommandResponse,
   orgs: SearchRepository[Organization],
   users: SearchRepository[User],
-  tickets: SearchRepository[Ticket]
+  tickets: SearchRepository[Ticket],
+  maxResultsToResolve: Int = 100
 ) {
 
 
@@ -86,7 +87,7 @@ class SearchConsole(
             case Left(err) =>
               err match {
                 case UnknownCommandError(l) => io.printResponse(UnknownCommandResponse(l))
-                case UnknownSubCommandError(c,s) => io.printResponse(UnknownSubCommandResponse(c, s))
+                case UnknownSubCommandError(c, s) => io.printResponse(UnknownSubCommandResponse(c, s))
                 case other => io.printResponse(UnexpectedErrorResponse(other))
               }
           }
@@ -97,37 +98,40 @@ class SearchConsole(
     loop()
   }
 
-  def resolveOrgs(orgs: Seq[Organization]):Seq[ResolvedOrganization] = {
-    orgs.map( o =>
-      ResolvedOrganization(o,
-        users.search("organization_id", Some(o._id.toString)).toOption,
-        tickets.search("organization_id", Some(o._id.toString)).toOption
+  def resolveOrgs(orgs: Seq[Organization]): Seq[Searchable] = {
+    if (orgs.length > maxResultsToResolve) orgs else
+      orgs.map(o =>
+        ResolvedOrganization(o,
+          users.search("organization_id", Some(o._id.toString)).toOption,
+          tickets.search("organization_id", Some(o._id.toString)).toOption
+        )
       )
-    )
   }
 
-  def resolveUsers(users: Seq[User]):Seq[ResolvedUser] = {
-    users.map( u =>
-      ResolvedUser(u,
-        u.organizationId.flatMap( id => orgs.get( id)),
-        tickets.search("submitter_id", Some(u._id.toString)).toOption,
-        tickets.search("assignee_id", Some(u._id.toString)).toOption
+  def resolveUsers(users: Seq[User]): Seq[Searchable] = {
+    if (users.length > maxResultsToResolve) users else
+      users.map(u =>
+        ResolvedUser(u,
+          u.organizationId.flatMap(id => orgs.get(id)),
+          tickets.search("submitter_id", Some(u._id.toString)).toOption,
+          tickets.search("assignee_id", Some(u._id.toString)).toOption
+        )
       )
-    )
   }
 
-  def resolveTickets(tickets: Seq[Ticket]):Seq[ResolvedTicket] = {
-    tickets.map( t =>
-      ResolvedTicket(t,
-        t.organizationId.flatMap( id => orgs.get( id)),
-        users.get(t.submitterId),
-        t.assigneeId.flatMap( id => users.get(id))
+  def resolveTickets(tickets: Seq[Ticket]): Seq[Searchable] = {
+    if (tickets.length > maxResultsToResolve) tickets else
+      tickets.map(t =>
+        ResolvedTicket(t,
+          t.organizationId.flatMap(id => orgs.get(id)),
+          users.get(t.submitterId),
+          t.assigneeId.flatMap(id => users.get(id))
+        )
       )
-    )
   }
 
   def search(entity: Entity, field: String, value: String): SearchResponse = {
-    val (f, v) = if  (field.startsWith("!"))  (field.substring(1), None) else (field, Some(value))
+    val (f, v) = if (field.startsWith("!")) (field.substring(1), None) else (field, Some(value))
     (entity match {
       case Organizations => orgs.search(f, v).map(resolveOrgs)
       case Users => users.search(f, v).map(resolveUsers)

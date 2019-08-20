@@ -17,14 +17,13 @@ abstract class MemoryRepositorySpec[T <: Searchable] extends UnitTestSpec {
 
   def generateData(count: Int): Seq[T]
 
-  def createRepo(): MemoryRepository[T]
+  def createRepo(values: Seq[T]): MemoryRepository[T]
 
   def searchableFields(): SearchableFields[T]
 
   "add" should "add data to repository and allow them to be retrieved by _id" in {
-    val repo = createRepo()
     val data = generateData(20)
-    repo.add(data)
+    val repo = createRepo(data)
     data.foreach(e => {
       val found = repo.get(e._id)
       found.value should have(
@@ -34,9 +33,8 @@ abstract class MemoryRepositorySpec[T <: Searchable] extends UnitTestSpec {
   }
 
   "search by id" should "retrieve entity with matching id" in {
-    val repo = createRepo()
     val data = generateData(20)
-    repo.add(data)
+    val repo = createRepo(data)
 
     val results = repo.search("_id", Some(data(4)._id.toString))
     results.right.value should have length (1)
@@ -44,17 +42,15 @@ abstract class MemoryRepositorySpec[T <: Searchable] extends UnitTestSpec {
   }
 
   "search by id" should "return NoResultsError if nothing matches" in {
-    val repo = createRepo()
-    repo.add(generateData(20))
+    val repo = createRepo(generateData(20))
 
     val results = repo.search("_id", Some("412431"))
     results.left.value should equal(NoResultsError)
   }
 
   "search by field" should "return matching entity" in {
-    val repo = createRepo()
     val data = generateData(20)
-    repo.add(data)
+    val repo = createRepo(data)
 
     searchableFields.foreach(f => {
       val searchEntity = data(FakeData.randIntBetween(0, 19))
@@ -67,9 +63,8 @@ abstract class MemoryRepositorySpec[T <: Searchable] extends UnitTestSpec {
 
 
   "search by field" should "return UnknownFieldError when field not found" in {
-    val repo = createRepo()
     val data = generateData(20)
-    repo.add(data)
+    val repo = createRepo(data)
 
     repo.search("bad", Some("anything")).left.value should equal(UnknownFieldError("bad"))
 
@@ -85,21 +80,21 @@ class OrgMemoryRepositorySpec extends MemoryRepositorySpec[Organization] {
     Organization.fields
   }
 
-  override def createRepo(): MemoryRepository[Organization] = new MemoryRepository[Organization]()
+  override def createRepo(values:Seq[Organization]): MemoryRepository[Organization] = new MemoryRepository[Organization](values)
 }
 
 
 class UserMemoryRepositorySpec extends MemoryRepositorySpec[User] {
 
   def generateData(count: Int) = {
-    (1 to count).map(FakeData.user)
+    (1 to count).map(i => FakeData.user(i))
   }
 
   def searchableFields: SearchableFields[User] = {
     User.fields
   }
 
-  override def createRepo(): MemoryRepository[User] = new MemoryRepository[User]()
+  override def createRepo(values:Seq[User]): MemoryRepository[User] = new MemoryRepository[User](values)
 }
 
 class TicketMemoryRepositorySpec extends MemoryRepositorySpec[Ticket] {
@@ -112,5 +107,5 @@ class TicketMemoryRepositorySpec extends MemoryRepositorySpec[Ticket] {
     Ticket.fields
   }
 
-  override def createRepo(): MemoryRepository[Ticket] = new MemoryRepository[Ticket]()
+  override def createRepo(values:Seq[Ticket]): MemoryRepository[Ticket] = new MemoryRepository[Ticket](values)
 }

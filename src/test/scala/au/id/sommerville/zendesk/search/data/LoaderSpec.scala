@@ -9,7 +9,7 @@ import au.id.sommerville.zendesk.search.UnitTestSpec
  */
 class LoaderSpec extends UnitTestSpec {
   "loadOrganizations" should "load single organization from file" in {
-    val inputPath = Paths.get(ClassLoader.getSystemResource("orgs/single.json").toURI)
+    val inputPath = Paths.get(this.getClass.getClassLoader.getResource("orgs/single.json").toURI)
 
     val orgs = Loader.loadOrganizations( inputPath )
 
@@ -20,7 +20,7 @@ class LoaderSpec extends UnitTestSpec {
   }
 
   "loadOrganizations" should "load multiple organization from file" in {
-    val inputPath = Paths.get(ClassLoader.getSystemResource("orgs/multiple.json").toURI)
+    val inputPath = Paths.get(this.getClass.getClassLoader.getResource("orgs/multiple.json").toURI)
 
     val orgs = Loader.loadOrganizations( inputPath )
 
@@ -28,7 +28,7 @@ class LoaderSpec extends UnitTestSpec {
   }
 
   "loadUsers" should "load single user from file" in {
-    val inputPath = Paths.get(ClassLoader.getSystemResource("users/single.json").toURI)
+    val inputPath = Paths.get(this.getClass.getClassLoader.getResource("users/single.json").toURI)
 
     val users = Loader.loadUsers( inputPath )
 
@@ -39,7 +39,7 @@ class LoaderSpec extends UnitTestSpec {
   }
 
   "loadUsers" should "load multiple users from file" in {
-    val inputPath = Paths.get(ClassLoader.getSystemResource("users/multiple.json").toURI)
+    val inputPath = Paths.get(this.getClass.getClassLoader.getResource("users/multiple.json").toURI)
 
     val users = Loader.loadUsers( inputPath )
 
@@ -47,7 +47,7 @@ class LoaderSpec extends UnitTestSpec {
   }
 
   "loadUsers" should "load user with minimal set of properties from sample data" in {
-      val inputPath = Paths.get(ClassLoader.getSystemResource("users/minimalPropertiesFromSampleData.json").toURI)
+      val inputPath = Paths.get(this.getClass.getClassLoader.getResource("users/minimalPropertiesFromSampleData.json").toURI)
 
       val users = Loader.loadUsers( inputPath )
 
@@ -58,7 +58,7 @@ class LoaderSpec extends UnitTestSpec {
     }
 
   "loadTickets" should "load single ticket from file" in {
-     val inputPath = Paths.get(ClassLoader.getSystemResource("tickets/single.json").toURI)
+     val inputPath = Paths.get(this.getClass.getClassLoader.getResource("tickets/single.json").toURI)
 
      val tickets = Loader.loadTickets( inputPath )
 
@@ -69,7 +69,7 @@ class LoaderSpec extends UnitTestSpec {
    }
 
    "loadTickets" should "load multiple ticket from file" in {
-     val inputPath = Paths.get(ClassLoader.getSystemResource("tickets/multiple.json").toURI)
+     val inputPath = Paths.get(this.getClass.getClassLoader.getResource("tickets/multiple.json").toURI)
 
      val tickets = Loader.loadTickets( inputPath )
 
@@ -78,7 +78,7 @@ class LoaderSpec extends UnitTestSpec {
 
 
   "loadTickets" should "load ticket with minimal set of properties from sample data" in {
-     val inputPath = Paths.get(ClassLoader.getSystemResource("tickets/minimalPropertiesFromSampleData.json").toURI)
+     val inputPath = Paths.get(this.getClass.getClassLoader.getResource("tickets/minimalPropertiesFromSampleData.json").toURI)
 
      val tickets = Loader.loadTickets( inputPath )
 

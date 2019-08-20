@@ -58,7 +58,7 @@ object FakeData {
     )
   }
 
-  def user(id: Int): User = {
+  def user(id: Int, orgIdMax: Int = 20): User = {
     User(
       _id = id,
       url = s"http://initech.zendesk.com/api/v2/users/${id}.json",
@@ -75,14 +75,14 @@ object FakeData {
       email = maybe(() => Internet.email),
       phone = PhoneNumber.phone_number,
       signature = Lorem.sentence(Random.nextInt(6)),
-      organizationId = maybe(() => Random.nextInt(20)),
+      organizationId = maybe(() => Random.nextInt(orgIdMax)),
       tags = Lorem.words(Random.nextInt(4)).toSet,
       suspended = Random.nextBoolean(),
       role = Seq("agent", "admin", "end-user")(Random.nextInt(3))
     )
   }
 
-  def ticket(id : String): Ticket = {
+  def ticket(id : String, orgIdMax: Int = 20, userIdMax: Int = 20): Ticket = {
     Ticket(
       _id = id,
       url = s"http=//initech.zendesk.com/api/v2/tickets/${id}.json",
@@ -93,9 +93,9 @@ object FakeData {
       description = maybe(() => Lorem.paragraph(Random.nextInt(5))),
       priority = Seq("low", "normal", "high", "urgent")(Random.nextInt(4)),
       status = Seq("open", "pending", "hold", "solved", "closed")(Random.nextInt(5)),
-      submitterId = Random.nextInt(20),
-      assigneeId = maybe(() => Random.nextInt(20)),
-      organizationId = maybe(() => Random.nextInt(20)),
+      submitterId = Random.nextInt(userIdMax),
+      assigneeId = maybe(() => Random.nextInt(userIdMax)),
+      organizationId = maybe(() => Random.nextInt(orgIdMax)),
       tags = Lorem.words(Random.nextInt(4)).toSet,
       hasIncidents = Random.nextBoolean(),
       dueAt = maybe(() => dateBetween(2018, 2021)),

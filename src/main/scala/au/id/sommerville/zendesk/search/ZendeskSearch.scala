@@ -14,12 +14,9 @@ object ZendeskSearch extends App {
 
 
   def run( config: Config): Unit = {
-    val orgs = new MemoryRepository[Organization]
-    orgs.add(Loader.loadOrganizations(Paths.get("data/organizations.json")))
-    val users = new MemoryRepository[User]
-    users.add(Loader.loadUsers(Paths.get("data/users.json")))
-    val tickets = new MemoryRepository[Ticket]
-    tickets.add(Loader.loadTickets(Paths.get("data/tickets.json")))
+    val orgs = new MemoryRepository(Loader.loadOrganizations(Paths.get("data/organizations.json")))
+    val users = new MemoryRepository(Loader.loadUsers(Paths.get("data/users.json")))
+    val tickets = new MemoryRepository(Loader.loadTickets(Paths.get("data/tickets.json")))
 
     SearchConsole(ConsoleCommandResponse.live, orgs, users, tickets).commandLoop
   }
