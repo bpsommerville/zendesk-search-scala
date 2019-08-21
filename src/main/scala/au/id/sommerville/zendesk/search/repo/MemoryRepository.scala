@@ -27,7 +27,7 @@ class MemoryRepository[T <: Searchable](values: Seq[T])(implicit fields: Searcha
       })
     })
 
-    indexBuilder.view.mapValues(_.view.mapValues(_.toSeq).toMap).toMap
+    indexBuilder.view.mapValues(_.view.mapValues(_.toVector).toMap).toMap
   }
 
   override def get(id: T#IdType): Option[T] = {

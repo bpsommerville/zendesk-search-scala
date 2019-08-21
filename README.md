@@ -52,10 +52,6 @@ This is to prevent the search time scaling linearly when the search result set i
 * All fields are searched via exact match
 
 ### Known Errors
-* The SearchPerformanceIT integration test is currently unreliable. Performance with the indexes is much better than
-the doing a brute force search, but there is still some factor causing near linear scaling 
-with bigger data sets
-
 * If data does not include all the required fields then the app will error while parsing the file.  
 This can be fixed by changing the appropriate field in the case class to Option[X] and updating the get function 
 in the corresponding SearchableField (also should update the output in the ConsoleWriter class)  
